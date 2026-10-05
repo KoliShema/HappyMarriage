@@ -1,431 +1,313 @@
 <title>Happy Marriage</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Layout: one column, three tabs, full-screen detail pages pushed over a menu. */
 :root{
   --navy:#1F1B56; --coral:#EB4137; --coral-tint:#F3A79E;
   --coral-soft:#FDEDEB; --navy-soft:#EFEEF5;
   --cream:#FAF9F6; --card:#FFFFFF;
   --muted:#7472A0; --border:rgba(31,27,86,0.12);
   --accent:var(--coral);
-  --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--cream);font-family:'Poppins',system-ui,sans-serif;color:var(--navy);-webkit-font-smoothing:antialiased}
 body{overflow:hidden}
-button,input,select,textarea{font-family:inherit;color:inherit}
+button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit}
 button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
-/* ---------- shell ---------- */
-#shell{max-width:540px;margin:0 auto;height:100%;display:flex;flex-direction:column;background:var(--cream);position:relative}
-header.top{padding:calc(var(--safe-top) + 18px) 20px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-header.top h1{font-size:23px;font-weight:600;letter-spacing:-.01em}
-header.top .sub{font-size:13px;color:var(--muted);margin-top:2px}
-main{flex:1;overflow-y:auto;padding:4px 20px 110px;-webkit-overflow-scrolling:touch}
-.view{display:none}
-.view.on{display:block}
+#shell{max-width:540px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
+header.top{padding:calc(env(safe-area-inset-top,0px) + 20px) 20px 8px;display:flex;align-items:center;gap:11px}
+header.top h1{font-size:24px;font-weight:600;letter-spacing:-.015em;text-wrap:balance}
+header.top .sub{font-size:13.5px;color:var(--muted);margin-top:1px}
+main{flex:1;overflow-y:auto;padding:6px 20px 108px;-webkit-overflow-scrolling:touch}
+.view[hidden]{display:none!important}
 
-/* ---------- bits ---------- */
 .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
-.card.flat{background:transparent;border:none;padding:0}
-h2{font-size:15px;font-weight:600;margin-bottom:4px}
-h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:22px 0 10px}
-p.lede{font-size:14px;color:var(--muted);line-height:1.55}
-.small{font-size:12.5px;color:var(--muted);line-height:1.5}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:500;width:100%}
+h2{font-size:17px;font-weight:600;margin-bottom:6px;text-wrap:balance}
+h3{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:26px 0 10px}
+p.lede{font-size:14px;color:var(--muted);line-height:1.6}
+.small{font-size:12.5px;color:var(--muted);line-height:1.55}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:#fff;border-radius:13px;padding:14px 18px;font-size:14.5px;font-weight:500;width:100%}
 .btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}
-.btn.accent{background:var(--accent)}
-.btn.sm{padding:9px 14px;font-size:13px;width:auto;border-radius:10px}
+.btn.accent{background:var(--accent);color:#fff}
+.btn.sm{padding:10px 14px;font-size:13px;border-radius:11px;width:auto}
 .btn:active{transform:scale(.985)}
-input[type=text],input[type=date],input[type=time],input[type=password],input[type=email],input[type=number],select,textarea{
-  width:100%;background:var(--cream);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14px;outline:none}
+input,select,textarea{width:100%;background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:13px;font-size:15px;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-label.fld{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:500}
+label.fld{display:block;font-size:12.5px;color:var(--muted);margin:14px 0 6px;font-weight:500}
 .row{display:flex;gap:10px}
-.row>*{flex:1}
+.row>*{flex:1;min-width:0}
 
-/* segmented */
-.seg{display:flex;background:rgba(31,27,86,.06);border-radius:13px;padding:3px;gap:3px}
-.seg button{flex:1;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted)}
-.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(31,27,86,.12)}
+/* ---- streak strip ---- */
+.strip{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px 16px;margin-bottom:16px}
+.strip .n{font-size:15px;font-weight:600;line-height:1.25}
+.strip .n span{display:block;font-size:11.5px;font-weight:400;color:var(--muted);margin-top:1px}
+.week{display:flex;gap:6px}
+.week i{width:22px;height:22px;border-radius:7px;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:9px;font-style:normal;color:var(--muted);font-weight:500}
+.week i.hit{background:var(--accent);color:#fff}
 
-/* toggle */
-.tg{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
-.tg:last-child{border-bottom:none}
-.tg .lab{font-size:14px;font-weight:500}
-.tg .hint{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
-.sw{width:46px;height:27px;border-radius:14px;background:rgba(31,27,86,.16);position:relative;flex:0 0 46px;transition:background .18s;margin-top:2px}
-.sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.sw.on{background:var(--accent)}
-.sw.on::after{transform:translateX(19px)}
-
-/* habit cards */
-.habit{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;transition:border-color .15s}
-.habit.done{border-color:var(--accent);background:linear-gradient(0deg,rgba(235,65,55,.04),rgba(235,65,55,.04)),var(--card)}
-.habit .box{flex:0 0 26px;width:26px;height:26px;border-radius:9px;border:2px solid var(--border);margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+/* ---- habit ---- */
+.habit{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;transition:border-color .15s,background .15s}
+.habit.done{border-color:var(--accent);background:var(--coral-soft)}
+.habit .box{flex:0 0 27px;width:27px;height:27px;border-radius:9px;border:2px solid var(--border);margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .habit.done .box{background:var(--accent);border-color:var(--accent)}
 .habit .box svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transition:opacity .15s}
 .habit.done .box svg{opacity:1}
-.habit .t{font-size:15px;font-weight:600;line-height:1.3}
-.habit.done .t{opacity:.55}
-.habit .d{font-size:13px;color:var(--muted);line-height:1.5;margin-top:5px}
-.pill{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-top:9px;background:rgba(31,27,86,.06);color:var(--muted)}
+.habit .t{font-size:15.5px;font-weight:600;line-height:1.35}
+.habit.done .t{opacity:.5}
+.habit .d{font-size:13px;color:var(--muted);line-height:1.55;margin-top:6px}
+.habit.done .d{display:none}
+.pill{display:inline-block;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;margin-top:10px;letter-spacing:.03em;text-transform:uppercase}
 .pill.him{background:var(--coral-soft);color:#B8302A}
 .pill.me{background:var(--navy-soft);color:#4A4784}
+.habit.done .pill{display:none}
 
-/* notice strip */
-.notice{border-radius:14px;padding:13px 16px;font-size:13px;line-height:1.55;margin-bottom:14px;background:var(--coral-soft);color:var(--navy);border-left:3px solid var(--coral)}
-.notice.calm{background:var(--navy-soft);color:var(--muted);border-left-color:var(--muted)}
+/* ---- mode row ---- */
+.moderow{display:flex;align-items:center;gap:8px;margin:4px 0 2px}
+.moderow .lbl{font-size:12px;color:var(--muted);flex:0 0 auto}
+.seg{display:flex;background:var(--navy-soft);border-radius:11px;padding:3px;gap:3px;flex:1}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--navy);box-shadow:0 1px 3px rgba(31,27,86,.14)}
 
-/* streak */
-.bignum{font-size:54px;font-weight:600;line-height:1;letter-spacing:-.03em}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center}
-.stat b{display:block;font-size:22px;font-weight:600}
-.stat span{font-size:11px;color:var(--muted);display:block;margin-top:3px;line-height:1.3}
-.dots{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
-.dot{aspect-ratio:1;border-radius:8px;background:rgba(31,27,86,.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)}
-.dot.hit{background:var(--accent);color:#fff}
-.dot.future{opacity:.35}
+.notice{border-radius:14px;padding:14px 16px;font-size:13.5px;line-height:1.6;margin-bottom:14px;background:var(--coral-soft);color:var(--navy);border-left:3px solid var(--coral)}
+.notice.calm{background:var(--navy-soft);border-left-color:var(--muted);color:var(--muted)}
 
-/* lists */
-.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.item .ttl{font-size:14px;font-weight:500;line-height:1.35}
-.item .sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
-.x{flex:0 0 auto;font-size:19px;color:var(--muted);line-height:1;padding:2px 4px;opacity:.6}
-.tap{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:8px;font-size:14px;line-height:1.4;width:100%;text-align:left}
-.tap:active{border-color:var(--accent)}
+/* ---- menu ---- */
+.menu{display:flex;flex-direction:column;gap:10px}
+.mi{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 17px;display:flex;align-items:center;gap:14px;text-align:left;width:100%}
+.mi:active{border-color:var(--accent)}
+.mi .ttl{font-size:15px;font-weight:600;line-height:1.3}
+.mi .sub{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:4px}
+.mi .arw{flex:0 0 auto;color:var(--muted);font-size:19px;line-height:1}
+.back{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);font-weight:500;padding:4px 0 14px}
 
-/* empty */
-.empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;line-height:1.6}
+/* ---- lists ---- */
+.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.item .ttl{font-size:14.5px;font-weight:500;line-height:1.4}
+.item .sub{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.item.ex{opacity:.55;border-style:dashed}
+.x{flex:0 0 auto;font-size:20px;color:var(--muted);line-height:1;padding:0 2px;opacity:.55}
+.tap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 16px;margin-bottom:9px;font-size:14.5px;line-height:1.45;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tap .cp{font-size:11px;color:var(--muted);flex:0 0 auto}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 12px;line-height:1.65}
 
-/* nav */
-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(250,249,246,.94);backdrop-filter:blur(14px);border-top:1px solid var(--border);display:flex;padding:8px 4px calc(var(--safe-bottom) + 8px)}
-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;font-weight:500;padding:4px 0}
-nav button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* ---- toggles ---- */
+.tg{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.tg:last-child{border-bottom:none}
+.tg .lab{font-size:14.5px;font-weight:500}
+.tg .hint{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.sw{width:48px;height:28px;border-radius:14px;background:rgba(31,27,86,.16);position:relative;flex:0 0 48px;transition:background .18s;margin-top:2px}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on{background:var(--accent)}
+.sw.on::after{transform:translateX(20px)}
+.more-btn{width:100%;text-align:center;font-size:13.5px;color:var(--muted);font-weight:500;padding:14px}
+
+/* ---- nav ---- */
+nav{position:absolute;bottom:0;left:0;right:0;background:rgba(250,249,246,.95);backdrop-filter:blur(14px);border-top:1px solid var(--border);display:flex;padding:9px 6px calc(env(safe-area-inset-bottom,0px) + 9px)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--muted);font-size:11px;font-weight:500;padding:3px 0}
+nav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 nav button.on{color:var(--accent)}
 
-/* toast */
-#toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:100px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.22s;z-index:900;max-width:88%;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:104px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:13.5px;opacity:0;pointer-events:none;transition:.22s;z-index:900;max-width:88%;text-align:center}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* lock */
-#lock{position:fixed;inset:0;background:var(--navy);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;padding:30px}
-#lock.on{display:flex}
-#lock .pins{display:flex;gap:11px}
+/* ---- overlays ---- */
+#lock,#welcome{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px;background:var(--navy);color:#fff;text-align:center}
+#lock[hidden],#welcome[hidden],#sheet[hidden]{display:none!important}
+#welcome .wcard{max-width:360px;display:flex;flex-direction:column;gap:14px}
+#welcome h2{font-size:25px;font-weight:600;color:#fff}
+#welcome p{font-size:15px;line-height:1.65;color:rgba(255,255,255,.8)}
+#welcome .btn{background:var(--coral);margin-top:8px}
+#lock .pins{display:flex;gap:12px}
 #lock .pins i{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.25);display:block}
 #lock .pins i.f{background:#fff}
-#lock .pad{display:grid;grid-template-columns:repeat(3,72px);gap:13px;margin-top:8px}
-#lock .pad button{height:62px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:22px;font-weight:400}
+#lock .pad{display:grid;grid-template-columns:repeat(3,74px);gap:14px;margin-top:6px}
+#lock .pad button{height:64px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:23px}
 
-a{color:var(--coral)}
-
-/* dialog */
 #sheet{position:fixed;inset:0;z-index:960;background:rgba(31,27,86,.5);display:flex;align-items:center;justify-content:center;padding:22px}
-#sheet[hidden]{display:none!important}
 #sheet .sheetCard{background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:380px;box-shadow:0 18px 50px rgba(31,27,86,.3)}
-#sheet h2{font-size:17px;margin-bottom:8px}
-#sheet .row{display:flex;gap:10px;margin-top:18px}
-#sheet .row .btn{flex:1}
-:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+#sheet h2{font-size:17px}
+#sheet .row{margin-top:18px}
 
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
     --cream:#141233; --card:#1C1A42; --navy:#F4F3FA; --muted:#9A98C4;
     --border:rgba(255,255,255,.12); --coral:#FF6A5F; --coral-tint:#F3A79E;
-    --coral-soft:rgba(255,106,95,.14); --navy-soft:rgba(255,255,255,.06);
+    --coral-soft:rgba(255,106,95,.15); --navy-soft:rgba(255,255,255,.07);
   }
-  :root:not([data-theme="light"]) nav{background:rgba(20,18,51,.94)}
-  :root:not([data-theme="light"]) .seg{background:rgba(255,255,255,.07)}
-  :root:not([data-theme="light"]) .seg button.on{background:#2A2756}
+  :root:not([data-theme="light"]) nav{background:rgba(20,18,51,.95)}
   :root:not([data-theme="light"]) #toast{background:#2A2756}
   :root:not([data-theme="light"]) .pill.him{color:#FF9A91}
   :root:not([data-theme="light"]) .pill.me{color:#C3C1E6}
+  :root:not([data-theme="light"]) #lock,:root:not([data-theme="light"]) #welcome{background:#0E0C26}
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
   --cream:#141233; --card:#1C1A42; --navy:#F4F3FA; --muted:#9A98C4;
   --border:rgba(255,255,255,.12); --coral:#FF6A5F; --coral-tint:#F3A79E;
-  --coral-soft:rgba(255,106,95,.14); --navy-soft:rgba(255,255,255,.06);
+  --coral-soft:rgba(255,106,95,.15); --navy-soft:rgba(255,255,255,.07);
 }
-:root[data-theme="dark"] nav{background:rgba(20,18,51,.94)}
-:root[data-theme="dark"] .seg{background:rgba(255,255,255,.07)}
-:root[data-theme="dark"] .seg button.on{background:#2A2756}
+:root[data-theme="dark"] nav{background:rgba(20,18,51,.95)}
 :root[data-theme="dark"] #toast{background:#2A2756}
 :root[data-theme="dark"] .pill.him{color:#FF9A91}
 :root[data-theme="dark"] .pill.me{color:#C3C1E6}
+:root[data-theme="dark"] #lock,:root[data-theme="dark"] #welcome{background:#0E0C26}
 </style>
 
 <div id="shell">
   <header class="top">
-    <div style="display:flex;align-items:center;gap:11px">
-      <svg width="20" height="22" viewBox="0 0 60 70" aria-hidden="true" style="flex:0 0 auto;margin-bottom:2px">
-        <path d="M14 8 L26 8 L19 62 L7 62 Z" fill="#F3A79E"/>
-        <path d="M30 8 L42 8 L35 62 L23 62 Z" fill="#EE6E64"/>
-        <path d="M46 8 L58 8 L51 62 L39 62 Z" fill="#EB4137"/>
-      </svg>
-    <div>
+    <svg width="20" height="22" viewBox="0 0 60 70" aria-hidden="true" style="flex:0 0 auto">
+      <path d="M14 8 L26 8 L19 62 L7 62 Z" fill="#F3A79E"/>
+      <path d="M30 8 L42 8 L35 62 L23 62 Z" fill="#EE6E64"/>
+      <path d="M46 8 L58 8 L51 62 L39 62 Z" fill="#EB4137"/>
+    </svg>
+    <div style="min-width:0">
       <h1 id="hTitle">Today</h1>
-      <div class="sub" id="hSub">Two small things.</div>
-    </div>
+      <div class="sub" id="hSub"></div>
     </div>
   </header>
 
   <main>
-
     <!-- ============ TODAY ============ -->
-    <section class="view on" id="v-today">
-      <div class="seg" style="margin-bottom:14px">
-        <button id="m-mix" onclick="setMode('mix')">Mix</button>
-        <button id="m-him" onclick="setMode('him')">For him</button>
-        <button id="m-me" onclick="setMode('me')">For me</button>
+    <section class="view" id="v-today">
+      <div class="strip">
+        <div class="n" id="stRun">&nbsp;<span>&nbsp;</span></div>
+        <div class="week" id="stWeek"></div>
       </div>
       <div id="todayNotice"></div>
       <div id="pairWrap"></div>
-      <button class="btn ghost" onclick="reroll()" style="margin-top:4px">Give me different ones</button>
+      <div id="todayDone"></div>
+      <div class="moderow">
+        <div class="seg">
+          <button id="m-mix" onclick="setMode('mix')">Both</button>
+          <button id="m-him" onclick="setMode('him')">Him</button>
+          <button id="m-me" onclick="setMode('me')">You</button>
+        </div>
+        <button class="btn ghost sm" style="flex:0 0 auto" onclick="reroll()">Swap</button>
+      </div>
       <div id="upNext"></div>
     </section>
 
-    <!-- ============ PROGRESS ============ -->
-    <section class="view" id="v-progress">
-      <div class="card" style="text-align:center;padding:26px 18px">
-        <div class="bignum" id="pRun">0</div>
-        <div class="small" style="margin-top:6px" id="pRunLab">days in a row</div>
+    <!-- ============ MORE ============ -->
+    <section class="view" id="v-more">
+      <div id="moreMenu">
+        <h3 style="margin-top:2px">Words, when you need them</h3>
+        <div class="menu" id="menuA"></div>
+        <h3>Lists to look at</h3>
+        <div class="menu" id="menuB"></div>
       </div>
-      <div class="stats">
-        <div class="stat"><b id="pDays">0</b><span>days you showed up</span></div>
-        <div class="stat"><b id="pActs">0</b><span>things done</span></div>
-        <div class="stat"><b id="pBest">0</b><span>longest run</span></div>
-      </div>
-      <h3>This month</h3>
-      <div class="card">
-        <div class="small" id="pMonthLab"></div>
-        <div class="dots" id="pDots"></div>
-      </div>
-      <h3>What you've been picking</h3>
-      <div class="card">
-        <div class="small" id="pSplit"></div>
-      </div>
-      <p class="small" style="margin-top:18px;text-align:center">Missed days don't show up here. There's nothing to catch up on.</p>
-    </section>
-
-    <!-- ============ TOOLKIT ============ -->
-    <section class="view" id="v-toolkit">
-      <div class="seg" style="margin-bottom:16px">
-        <button id="t-ask" onclick="setTool('ask')">Ask</button>
-        <button id="t-repair" onclick="setTool('repair')">Repair</button>
-        <button id="t-hand" onclick="setTool('hand')">Hand off</button>
-        <button id="t-thanks" onclick="setTool('thanks')">Notice</button>
-      </div>
-
-      <div id="tool-ask" class="tool">
-        <h2>Say it straight</h2>
-        <p class="lede">Hinting doesn't land, even when he's trying. A request works better when it says what, and when.</p>
-        <div class="card" style="margin-top:14px">
-          <label class="fld">What you want</label>
-          <input type="text" id="aWhat" placeholder="take the kids out">
-          <label class="fld">When</label>
-          <input type="text" id="aWhen" placeholder="Friday, three to four">
-          <button class="btn accent" style="margin-top:14px" onclick="buildAsk()">Make the sentence</button>
-          <div id="askOut"></div>
-        </div>
-        <h3>Hint, and the sentence instead</h3>
-        <div id="askEx"></div>
-      </div>
-
-      <div id="tool-repair" class="tool" style="display:none">
-        <h2>Lines for the middle of it</h2>
-        <p class="lede">These work when they come early, before it's gone far. Pick one you'd actually say. Tap to copy.</p>
-        <div style="margin-top:14px" id="repairList"></div>
-      </div>
-
-      <div id="tool-hand" class="tool" style="display:none">
-        <h2>Hand it off</h2>
-        <p class="lede">A task has three parts. Remembering it, planning it, doing it. If you're still remembering it, you still have it.</p>
-        <div class="card" style="margin-top:14px">
-          <label class="fld">The task</label>
-          <input type="text" id="hTask" placeholder="Shabbos clothes for the boys">
-          <button class="btn accent" style="margin-top:12px" onclick="addHand()">Add</button>
-        </div>
-        <div id="handList"></div>
-      </div>
-
-      <div id="tool-thanks" class="tool" style="display:none">
-        <h2>Notice one thing</h2>
-        <p class="lede">What he did, and what it says about him. The second half is the part that lands.</p>
-        <div class="card" style="margin-top:14px">
-          <label class="fld">What he did</label>
-          <input type="text" id="thWhat" placeholder="got up with the baby">
-          <label class="fld">What that says about him</label>
-          <input type="text" id="thTrait" placeholder="he notices when I'm finished">
-          <button class="btn accent" style="margin-top:12px" onclick="addThanks()">Save it</button>
-        </div>
-        <button class="btn ghost" onclick="randomThanks()" style="margin-bottom:14px">Show me one</button>
-        <div id="thanksOut"></div>
-        <div id="thanksList"></div>
-      </div>
-    </section>
-
-    <!-- ============ IDEAS ============ -->
-    <section class="view" id="v-ideas">
-      <div class="seg" style="margin-bottom:16px">
-        <button id="i-respect" onclick="setIdea('respect')">Respect</button>
-        <button id="i-together" onclick="setIdea('together')">Together</button>
-        <button id="i-dates" onclick="setIdea('dates')">Dates</button>
-        <button id="i-gifts" onclick="setIdea('gifts')">Gifts</button>
-      </div>
-
-      <div id="idea-respect" class="ideaPane">
-        <h2>Things that read as respect</h2>
-        <p class="lede">Respect isn't a man's need and love a woman's &mdash; when researchers asked people what respect in a marriage actually looks like, men and women described almost the same thing. What's true is that the opposite of it, contempt, does more damage than anything else a marriage does. These are the ordinary, small versions.</p>
-        <button class="btn accent" style="margin:14px 0" onclick="rollRespect()">Give me one for today</button>
-        <div id="resOut"></div>
-        <h3>The whole list</h3>
-        <div id="resList"></div>
-        <p class="small" style="margin:14px 0 4px">These are in the daily rotation too, under For him.</p>
-      </div>
-
-      <div id="idea-together" class="ideaPane">
-        <h2>Ways to be close that aren't touch</h2>
-        <p class="lede">These work in any week of the month, and most of them work with children awake in the room.</p>
-        <button class="btn accent" style="margin:14px 0" onclick="rollTogether()">Give me one</button>
-        <div id="togOut"></div>
-        <h3>The whole list</h3>
-        <div id="togList"></div>
-      </div>
-
-      <div id="idea-dates" class="ideaPane" style="display:none">
-        <h2>Dates worth remembering</h2>
-        <div class="card" style="margin-top:14px">
-          <label class="fld">What it is</label>
-          <input type="text" id="dName" placeholder="Our anniversary">
-          <label class="fld">Date</label>
-          <input type="date" id="dDate">
-          <div class="row" style="margin-top:12px">
-            <div><label class="fld" style="margin-top:0">Repeats every year</label>
-              <select id="dYearly"><option value="1">Yes</option><option value="0">No</option></select></div>
-          </div>
-          <button class="btn accent" style="margin-top:14px" onclick="addDate()">Add</button>
-        </div>
-        <div id="dateList"></div>
-      </div>
-
-      <div id="idea-gifts" class="ideaPane" style="display:none">
-        <h2>Things he'd actually want</h2>
-        <p class="lede">Write it down when he says it, not when you need it.</p>
-        <div class="card" style="margin-top:14px">
-          <label class="fld">The thing</label>
-          <input type="text" id="gName" placeholder="the sefer he mentioned">
-          <label class="fld">For when</label>
-          <input type="text" id="gWhen" placeholder="his birthday">
-          <button class="btn accent" style="margin-top:12px" onclick="addGift()">Add</button>
-        </div>
-        <div id="giftList"></div>
+      <div id="morePage" hidden>
+        <button class="back" onclick="backToMenu()">&larr; Back</button>
+        <div id="pageBody"></div>
       </div>
     </section>
 
     <!-- ============ SETTINGS ============ -->
     <section class="view" id="v-settings">
-      <h3 style="margin-top:4px">This week</h3>
       <div class="card">
         <div class="tg">
-          <div><div class="lab">Touch-free prompts</div><div class="hint">Nothing in the rotation will ask you to touch him. Turn it on and off whenever you want. It isn't recorded anywhere.</div></div>
-          <div class="sw" id="sw-touch" onclick="tog('touchFree')"></div>
+          <div><div class="lab">Touch-free prompts</div><div class="hint">Nothing will ask you to touch him. Turn it on and off whenever. It isn't recorded.</div></div>
+          <div class="sw" id="sw-touchFree" onclick="tog('touchFree')"></div>
         </div>
         <div class="tg">
-          <div><div class="lab">Lighter load</div><div class="hint">One thing a day instead of two, and nothing in a row is counted. For Pesach, Tishrei, a new baby, a hard stretch.</div></div>
+          <div><div class="lab">Lighter load</div><div class="hint">One thing a day instead of two. For Pesach, Tishrei, a new baby, a hard stretch.</div></div>
           <div class="sw" id="sw-pause" onclick="tog('pause')"></div>
         </div>
-      </div>
-
-      <h3>Shabbos and Yom Tov</h3>
-      <div class="card">
         <div class="tg">
-          <div><div class="lab">Quiet from Friday to Motzei Shabbos</div><div class="hint">No reminders, nothing to check off, nothing broken when you come back.</div></div>
-          <div class="sw" id="sw-shab" onclick="tog('shabbos')"></div>
-        </div>
-        <div class="row" style="margin-top:12px">
-          <div><label class="fld" style="margin-top:0">Starts</label><input type="time" id="shStart" onchange="saveTimes()"></div>
-          <div><label class="fld" style="margin-top:0">Ends</label><input type="time" id="shEnd" onchange="saveTimes()"></div>
-        </div>
-        <div class="tg" style="margin-top:6px">
-          <div><div class="lab">Friday is a light day</div><div class="hint">Erev Shabbos gets the smallest things on the list, or nothing at all.</div></div>
-          <div class="sw" id="sw-fri" onclick="tog('lightFriday')"></div>
+          <div><div class="lab">Quiet on Shabbos</div><div class="hint">Nothing to check off from Friday evening to Motzei Shabbos, and Friday gets the smallest things.</div></div>
+          <div class="sw" id="sw-shabbos" onclick="tog('shabbos')"></div>
         </div>
       </div>
 
-      <h3>Reminders</h3>
-      <div class="card">
-        <p class="small" style="margin-bottom:10px">Reminders come from your browser. Previews are off, so the text on your lock screen says nothing about what this is.</p>
-        <div class="tg">
-          <div><div class="lab">Morning</div><div class="hint">Shows you the two.</div></div>
-          <div class="sw" id="sw-rm" onclick="tog('remMorning')"></div>
-        </div>
-        <div class="tg">
-          <div><div class="lab">Evening</div><div class="hint">Only if nothing's been checked off.</div></div>
-          <div class="sw" id="sw-re" onclick="tog('remEvening')"></div>
-        </div>
-        <div class="tg">
-          <div><div class="lab">A week before a date</div></div>
-          <div class="sw" id="sw-rd" onclick="tog('remDates')"></div>
-        </div>
-        <button class="btn ghost" style="margin-top:12px" onclick="askNotif()">Turn on notifications</button>
-      </div>
+      <button class="more-btn card" style="margin-bottom:14px" onclick="toggleAdv()" id="advBtn">More settings</button>
 
-      <h3>Privacy</h3>
-      <div class="card">
-        <div class="tg">
-          <div><div class="lab">PIN lock</div><div class="hint">Four digits, asked for every time the app opens.</div></div>
-          <div class="sw" id="sw-pin" onclick="togglePin()"></div>
+      <div id="adv" hidden>
+        <h3 style="margin-top:0">Shabbos times</h3>
+        <div class="card">
+          <div class="row">
+            <div><label class="fld" style="margin-top:0" for="shStart">Starts</label><input type="time" id="shStart" onchange="saveTimes()"></div>
+            <div><label class="fld" style="margin-top:0" for="shEnd">Ends</label><input type="time" id="shEnd" onchange="saveTimes()"></div>
+          </div>
+          <div class="tg" style="margin-top:4px">
+            <div><div class="lab">Friday is a light day</div></div>
+            <div class="sw" id="sw-lightFriday" onclick="tog('lightFriday')"></div>
+          </div>
         </div>
-        <label class="fld">What it's called on your phone</label>
-        <input type="text" id="appName" placeholder="Happy Marriage" onchange="saveName()">
-        <div class="hint" style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45">Changes the name in the tab. To change the icon name on your home screen, delete the shortcut and add it again after you save this.</div>
-      </div>
 
-      <h3>Your own</h3>
-      <div class="card">
-        <p class="small" style="margin-bottom:10px">Things that fit your marriage. They go into the rotation with the rest.</p>
-        <label class="fld" style="margin-top:0">The thing</label>
-        <input type="text" id="cTitle" placeholder="Call him on his way home">
-        <label class="fld">A line about it</label>
-        <input type="text" id="cDesc" placeholder="Just to say hello, not to ask for anything">
-        <label class="fld">Which side</label>
-        <select id="cPool"><option value="him">For him</option><option value="me">For me</option></select>
-        <button class="btn accent" style="margin-top:14px" onclick="addCustom()">Add</button>
-        <div id="customList" style="margin-top:12px"></div>
-      </div>
+        <h3>Reminders</h3>
+        <div class="card">
+          <p class="small" style="margin-bottom:8px">These come from your browser. The text on your lock screen says nothing about what this is.</p>
+          <div class="tg"><div><div class="lab">Morning</div></div><div class="sw" id="sw-remMorning" onclick="tog('remMorning')"></div></div>
+          <div class="tg"><div><div class="lab">Evening, if nothing's done</div></div><div class="sw" id="sw-remEvening" onclick="tog('remEvening')"></div></div>
+          <div class="tg"><div><div class="lab">A week before a date</div></div><div class="sw" id="sw-remDates" onclick="tog('remDates')"></div></div>
+          <button class="btn ghost" style="margin-top:12px" onclick="askNotif()">Turn on notifications</button>
+        </div>
 
-      <h3>Your information</h3>
-      <div class="card">
-        <p class="small">Everything here stays on this device. Nothing is sent anywhere and nobody else can see it. If you clear your browser data it's gone, so save a copy if you want one.</p>
-        <div class="row" style="margin-top:12px">
-          <button class="btn ghost sm" style="flex:1" onclick="exportData()">Save a copy</button>
-          <button class="btn ghost sm" style="flex:1" onclick="wipe()">Erase everything</button>
+        <h3>Privacy</h3>
+        <div class="card">
+          <div class="tg">
+            <div><div class="lab">PIN lock</div><div class="hint">Four digits, every time it opens.</div></div>
+            <div class="sw" id="sw-pin" onclick="togglePin()"></div>
+          </div>
+          <label class="fld" for="appName">What it's called in the tab</label>
+          <input type="text" id="appName" placeholder="Happy Marriage" onchange="saveName()">
+        </div>
+
+        <h3>Your own</h3>
+        <div class="card">
+          <p class="small" style="margin-bottom:6px">Things that fit your marriage. They go into the daily rotation with the rest.</p>
+          <label class="fld" for="cTitle">The thing</label>
+          <input type="text" id="cTitle" placeholder="Call him on his way home">
+          <label class="fld" for="cDesc">A line about it (optional)</label>
+          <input type="text" id="cDesc" placeholder="Just to say hello">
+          <label class="fld" for="cPool">Which side</label>
+          <select id="cPool"><option value="him">For him</option><option value="me">For you</option></select>
+          <button class="btn accent" style="margin-top:14px" onclick="addCustom()">Add</button>
+          <div id="customList" style="margin-top:12px"></div>
+        </div>
+
+        <h3>Your information</h3>
+        <div class="card">
+          <p class="small">Everything stays on this device. Nothing is sent anywhere. If you clear your browser data it's gone, so save a copy if you want one.</p>
+          <div class="row" style="margin-top:12px">
+            <button class="btn ghost sm" onclick="exportData()">Save a copy</button>
+            <button class="btn ghost sm" onclick="wipe()">Erase everything</button>
+          </div>
         </div>
       </div>
-
-      <p class="small" style="text-align:center;margin:22px 0 10px">Koli Shema &middot; kolishema.org</p>
+      <p class="small" style="text-align:center;margin:20px 0 6px">Koli Shema &middot; kolishema.org</p>
     </section>
-
   </main>
 
   <nav>
     <button class="on" id="n-today" onclick="goTo('today')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.4l2.6 2.6L16 9.6"/></svg>Today</button>
-    <button id="n-progress" onclick="goTo('progress')">
-      <svg viewBox="0 0 24 24"><path d="M5 19v-7M12 19V5M19 19v-4"/></svg>Progress</button>
-    <button id="n-toolkit" onclick="goTo('toolkit')">
-      <svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>Toolkit</button>
-    <button id="n-ideas" onclick="goTo('ideas')">
-      <svg viewBox="0 0 24 24"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.5.4.8 1 .8 1.6v.5h5.2v-.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z"/></svg>Ideas</button>
+    <button id="n-more" onclick="goTo('more')">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>More</button>
     <button id="n-settings" onclick="goTo('settings')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.1 14.5a1.5 1.5 0 0 0 .3 1.7l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.5 1.5 0 0 0-2.5 1.1V20a1.9 1.9 0 1 1-3.8 0v-.1a1.5 1.5 0 0 0-2.5-1.1l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.5 1.5 0 0 0-1.1-2.5H4a1.9 1.9 0 1 1 0-3.8h.1A1.5 1.5 0 0 0 5.2 7.2l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.5 1.5 0 0 0 2.5-1.1V3a1.9 1.9 0 1 1 3.8 0v.1a1.5 1.5 0 0 0 2.5 1.1l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.5 1.5 0 0 0 1.1 2.5H20a1.9 1.9 0 1 1 0 3.8h-.1a1.5 1.5 0 0 0-.8.3z"/></svg>Settings</button>
   </nav>
 </div>
 
 <div id="toast"></div>
+
+<div id="welcome" hidden>
+  <div class="wcard">
+    <h2>Two small things a day</h2>
+    <p>One toward him, one toward you. That's the whole app.</p>
+    <p>Takes a minute. Nothing is sent anywhere, and nobody else sees it.</p>
+    <button class="btn" onclick="closeWelcome()">Start</button>
+  </div>
+</div>
+
+<div id="lock" hidden>
+  <div style="font-size:15px;opacity:.75">Enter your PIN</div>
+  <div class="pins"><i id="p0"></i><i id="p1"></i><i id="p2"></i><i id="p3"></i></div>
+  <div class="pad" id="pad"></div>
+</div>
 
 <div id="sheet" hidden>
   <div class="sheetCard" role="dialog" aria-modal="true" aria-labelledby="shTitle">
@@ -437,18 +319,7 @@ a{color:var(--coral)}
     </div>
   </div>
 </div>
-
-<!-- ===== lock ===== -->
-<div id="lock">
-  <div style="font-size:15px;opacity:.75">Enter your PIN</div>
-  <div class="pins"><i id="p0"></i><i id="p1"></i><i id="p2"></i><i id="p3"></i></div>
-  <div class="pad" id="pad"></div>
-</div>
-
 <script>
-/* ============================================================
-   DATA
-   ============================================================ */
 const HIM = [
  {t:"Stop what you're doing when he talks",d:"When he says look at this, put the phone down and look. It's thirty seconds.",w:1},
  {t:"Thank him for one thing, and say what it shows about him",d:"Not thanks for taking out the garbage. More like, you took it out before I asked, you notice when I'm finished.",w:1},
@@ -597,12 +468,13 @@ const ASK_EX = [
  ["Do whatever you want.","I want to stay home tonight."]
 ];
 
+
 /* ============================================================
    STATE
    ============================================================ */
 const KEY = 'happyMarriage.v1';
 const DEF = {
-  mode:'mix', touchFree:false, pause:false, shabbos:true, lightFriday:true,
+  seen:false, mode:'mix', touchFree:false, pause:false, shabbos:true, lightFriday:true,
   shStart:'18:00', shEnd:'20:30',
   remMorning:false, remEvening:false, remDates:true,
   appName:'Happy Marriage', pin:'',
@@ -610,7 +482,7 @@ const DEF = {
   custom:[], thanks:[], hand:[], dates:[], gifts:[]
 };
 let S = load();
-let view='today', tool='ask', ideaPane='respect', pinBuf='';
+let view='today', page=null, pinBuf='', sheetGo=null, advOpen=false;
 
 function load(){
   try{ const r=localStorage.getItem(KEY); if(r) return Object.assign({},DEF,JSON.parse(r)); }catch(e){}
@@ -622,20 +494,21 @@ function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
    HELPERS
    ============================================================ */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function key(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function today(){ return key(new Date()); }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('on'),1900); }
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
 function rngFrom(seed){ let x=seed||1; return ()=>{ x^=x<<13; x>>>=0; x^=x>>17; x^=x<<5; x>>>=0; return x/4294967296; }; }
 
 function pools(){
-  const cHim = S.custom.filter(c=>c.pool==='him').map(c=>({t:c.title,d:c.desc,w:1,custom:true}));
-  const cMe  = S.custom.filter(c=>c.pool==='me').map(c=>({t:c.title,d:c.desc,w:1,custom:true}));
+  const cH=S.custom.filter(c=>c.pool==='him').map((c,i)=>({t:c.title,d:c.desc,w:1,id:'ch'+i,side:'him'}));
+  const cM=S.custom.filter(c=>c.pool==='me').map((c,i)=>({t:c.title,d:c.desc,w:1,id:'cm'+i,side:'me'}));
   return {
-    him: HIM.map((h,i)=>({...h,id:'h'+i,side:'him'}))
-         .concat(RESPECT.map((h,i)=>({...h,id:'r'+i,side:'him',respect:true})))
-         .concat(cHim.map((h,i)=>({...h,id:'ch'+i,side:'him'}))),
-    me:  ME.map((h,i)=>({...h,id:'m'+i,side:'me'})).concat(cMe.map((h,i)=>({...h,id:'cm'+i,side:'me'})))
+    him: HIM.map((x,i)=>({...x,id:'h'+i,side:'him'}))
+          .concat(RESPECT.map((x,i)=>({...x,id:'r'+i,side:'him',respect:true})))
+          .concat(cH),
+    me:  ME.map((x,i)=>({...x,id:'m'+i,side:'me'})).concat(cM)
   };
 }
 function byId(id){ const p=pools(); return p.him.concat(p.me).find(x=>x.id===id); }
@@ -643,339 +516,322 @@ function byId(id){ const p=pools(); return p.him.concat(p.me).find(x=>x.id===id)
 function isShabbos(){
   if(!S.shabbos) return false;
   const n=new Date(), d=n.getDay(), mins=n.getHours()*60+n.getMinutes();
-  const [a,b]=S.shStart.split(':').map(Number), [c,e]=S.shEnd.split(':').map(Number);
-  if(d===5 && mins>=a*60+b) return true;
-  if(d===6 && mins< c*60+e) return true;
+  const a=S.shStart.split(':').map(Number), c=S.shEnd.split(':').map(Number);
+  if(d===5 && mins>=a[0]*60+a[1]) return true;
+  if(d===6 && mins< c[0]*60+c[1]) return true;
   return false;
 }
-function isErevShabbos(){ return S.lightFriday && new Date().getDay()===5 && !isShabbos(); }
+function isErevShabbos(){ return S.shabbos && S.lightFriday && new Date().getDay()===5 && !isShabbos(); }
 
 /* ============================================================
-   PAIR
+   THE DAILY TWO
    ============================================================ */
-function wanted(){
-  if(S.pause) return 1;
-  return 2;
-}
 function filterPool(list){
-  let l = list;
-  if(S.touchFree) l = l.filter(x=>!x.touch);
-  if(isErevShabbos() || S.pause) l = l.filter(x=>x.w===1);
-  return l.length? l : list;
+  let l=list;
+  if(S.touchFree) l=l.filter(x=>!x.touch);
+  if(isErevShabbos()||S.pause) l=l.filter(x=>x.w===1);
+  return l.length?l:list;
 }
 function pickPair(force){
   const d=today();
   if(!force && S.pair.date===d && S.pair.mode===S.mode && S.pair.ids.length) return S.pair.ids;
-  const p=pools();
-  const rnd=rngFrom(hash(d+S.mode+S.seed));
-  const take=(arr,n)=>{ const a=filterPool(arr).slice(); const out=[]; while(out.length<n && a.length){ out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); } return out; };
-  let ids=[];
-  const n=wanted();
+  const p=pools(), rnd=rngFrom(hash(d+S.mode+S.seed));
+  const take=(arr,n)=>{ const a=filterPool(arr).slice(), out=[]; while(out.length<n&&a.length) out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); return out; };
+  const n=(S.pause||isErevShabbos())?1:2;
+  let ids;
   if(S.mode==='him') ids=take(p.him,n).map(x=>x.id);
   else if(S.mode==='me') ids=take(p.me,n).map(x=>x.id);
-  else {
-    if(n===1) ids = (rnd()<0.5? take(p.him,1):take(p.me,1)).map(x=>x.id);
-    else ids = take(p.him,1).concat(take(p.me,1)).map(x=>x.id);
-  }
-  S.pair={date:d,ids,mode:S.mode}; save();
+  else if(n===1) ids=(rnd()<0.5?take(p.him,1):take(p.me,1)).map(x=>x.id);
+  else ids=take(p.him,1).concat(take(p.me,1)).map(x=>x.id);
+  S.pair={date:d,ids:ids,mode:S.mode}; save();
   return ids;
 }
 function reroll(){ S.seed=(S.seed||0)+1; pickPair(true); renderToday(); toast('Different ones.'); }
-
+function setMode(m){ S.mode=m; save(); pickPair(false); renderToday(); }
 function toggleDone(id){
-  const d=today();
-  S.done[d]=S.done[d]||[];
+  const d=today(); S.done[d]=S.done[d]||[];
   const i=S.done[d].indexOf(id);
   if(i>=0) S.done[d].splice(i,1); else S.done[d].push(id);
   if(!S.done[d].length) delete S.done[d];
-  save(); renderToday(); renderProgress();
+  save(); renderToday();
+}
+function dayList(){ return Object.keys(S.done).filter(k=>S.done[k].length).sort(); }
+function runLength(){
+  const days=new Set(dayList()); let n=0; const d=new Date();
+  if(!days.has(today())) d.setDate(d.getDate()-1);
+  while(days.has(key(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
 }
 
 /* ============================================================
-   RENDER — TODAY
+   TODAY
    ============================================================ */
-function setMode(m){ S.mode=m; save(); pickPair(false); renderToday(); }
-
 function renderToday(){
   ['mix','him','me'].forEach(m=>document.getElementById('m-'+m).classList.toggle('on',S.mode===m));
 
-  const nw=document.getElementById('todayNotice');
-  const wrap=document.getElementById('pairWrap');
+  const run=runLength(), total=dayList().length;
+  document.getElementById('stRun').innerHTML = run>0
+    ? esc(run+(run===1?' day in a row':' days in a row'))+'<span>'+esc(total+' '+(total===1?'day':'days')+' altogether')+'</span>'
+    : 'Start today<span>One is enough to begin</span>';
+  const L='SMTWTFS'; let wk='';
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i);
+    wk+='<i class="'+(S.done[key(d)]?'hit':'')+'">'+L[d.getDay()]+'</i>'; }
+  document.getElementById('stWeek').innerHTML=wk;
+
+  const nw=document.getElementById('todayNotice'), wrap=document.getElementById('pairWrap'),
+        dn=document.getElementById('todayDone'), mr=document.querySelector('#v-today .moderow');
 
   if(isShabbos()){
-    nw.innerHTML='';
-    wrap.innerHTML='<div class="card" style="text-align:center;padding:34px 20px"><div style="font-size:16px;font-weight:600">Nothing here until Motzei Shabbos.</div><p class="small" style="margin-top:8px">Nothing breaks while you\'re away.</p></div>';
+    nw.innerHTML=''; dn.innerHTML=''; mr.hidden=true;
+    wrap.innerHTML='<div class="card" style="text-align:center;padding:36px 20px"><div style="font-size:17px;font-weight:600">Nothing here until Motzei Shabbos</div><p class="small" style="margin-top:8px">Nothing breaks while you are away.</p></div>';
     document.getElementById('upNext').innerHTML='';
-    document.getElementById('hSub').textContent='Good Shabbos.';
+    document.getElementById('hSub').textContent='Good Shabbos';
     return;
   }
+  mr.hidden=false;
 
   let note='';
-  if(S.pause) note='Lighter load is on. One thing today, and nothing is being counted.';
-  else if(isErevShabbos()) note='It\'s Erev Shabbos, so today\'s are the smallest ones on the list. Skipping it is also fine.';
-  nw.innerHTML = note? '<div class="notice">'+esc(note)+'</div>':'';
+  if(S.pause) note='Lighter load is on, so it is one thing today.';
+  else if(isErevShabbos()) note='Erev Shabbos. Just one today, and the smallest one on the list.';
+  nw.innerHTML = note?'<div class="notice calm">'+esc(note)+'</div>':'';
 
   const ids=pickPair(false), d=today(), done=S.done[d]||[];
-  wrap.innerHTML = ids.map(id=>{
-    const h=byId(id); if(!h) return '';
-    const on=done.includes(id);
-    return '<div class="habit'+(on?' done':'')+'" onclick="toggleDone(\''+id+'\')">'+
-      '<div class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg></div>'+
-      '<div style="flex:1"><div class="t">'+esc(h.t)+'</div>'+
-      (h.d?'<div class="d">'+esc(h.d)+'</div>':'')+
-      '<span class="pill '+(h.side==='him'?'him':'me')+'">'+(h.side==='him'?'for him':'for you')+'</span>'+
-      '</div></div>';
+  wrap.innerHTML = ids.map(function(id){
+    const x=byId(id); if(!x) return '';
+    const on=done.indexOf(id)>=0;
+    return '<button class="habit'+(on?' done':'')+'" onclick="toggleDone(\''+id+'\')" aria-pressed="'+on+'">'+
+      '<span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg></span>'+
+      '<span style="flex:1;min-width:0"><span class="t" style="display:block">'+esc(x.t)+'</span>'+
+      (x.d?'<span class="d" style="display:block">'+esc(x.d)+'</span>':'')+
+      '<span class="pill '+(x.side==='him'?'him':'me')+'">'+(x.side==='him'?'for him':'for you')+'</span>'+
+      '</span></button>';
   }).join('');
 
-  const n=done.filter(x=>ids.includes(x)).length;
-  document.getElementById('hSub').textContent = n===0? 'Two small things.' : (n>=ids.length? 'Both done.' : n+' of '+ids.length+' done.');
+  const n=done.filter(function(x){return ids.indexOf(x)>=0;}).length;
+  dn.innerHTML = (n>0&&n>=ids.length) ? '<div class="notice">That is today. Nothing else on the list.</div>' : '';
+  document.getElementById('hSub').textContent =
+    n===0 ? (ids.length===1?'One small thing':'Two small things')
+          : (n>=ids.length ? 'Done' : n+' of '+ids.length+' done');
 
-  // upcoming date
   const up=nextDate();
-  document.getElementById('upNext').innerHTML = up? '<h3>Coming up</h3><div class="item"><div><div class="ttl">'+esc(up.name)+'</div><div class="sub">'+up.days+(up.days===1?' day':' days')+' from now</div></div></div>':'';
+  document.getElementById('upNext').innerHTML = up
+    ? '<h3>Coming up</h3><div class="item"><div><div class="ttl">'+esc(up.name)+'</div><div class="sub">'+(up.days===0?'today':up.days+(up.days===1?' day':' days')+' from now')+'</div></div></div>' : '';
 }
 
 /* ============================================================
-   RENDER — PROGRESS
+   MORE — menu and pages
    ============================================================ */
-function dayList(){ return Object.keys(S.done).filter(k=>S.done[k].length).sort(); }
-function runLength(){
-  const days=new Set(dayList());
-  let n=0; const d=new Date();
-  if(!days.has(today())) d.setDate(d.getDate()-1);
-  for(;;){
-    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    if(days.has(k)){ n++; d.setDate(d.getDate()-1);} else break;
-  }
-  return n;
-}
-function bestRun(){
-  const l=dayList(); if(!l.length) return 0;
-  let best=1,cur=1;
-  for(let i=1;i<l.length;i++){
-    const a=new Date(l[i-1]), b=new Date(l[i]);
-    if((b-a)/86400000===1){cur++;} else cur=1;
-    if(cur>best) best=cur;
-  }
-  return best;
-}
-function renderProgress(){
-  const l=dayList();
-  const acts=l.reduce((s,k)=>s+S.done[k].length,0);
-  const run=runLength();
-  document.getElementById('pRun').textContent=run;
-  document.getElementById('pRunLab').textContent = run===0? 'start whenever' : (run===1?'day in a row':'days in a row');
-  document.getElementById('pDays').textContent=l.length;
-  document.getElementById('pActs').textContent=acts;
-  document.getElementById('pBest').textContent=bestRun();
-
-  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
-  const first=new Date(y,m,1), days=new Date(y,m+1,0).getDate();
-  document.getElementById('pMonthLab').textContent=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
-  let html='';
-  for(let i=0;i<first.getDay();i++) html+='<div></div>';
-  for(let i=1;i<=days;i++){
-    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');
-    const hit=S.done[k]&&S.done[k].length;
-    const fut=i>now.getDate();
-    html+='<div class="dot'+(hit?' hit':'')+(fut?' future':'')+'">'+i+'</div>';
-  }
-  document.getElementById('pDots').innerHTML=html;
-
-  let him=0,me=0;
-  l.forEach(k=>S.done[k].forEach(id=>{ const h=byId(id); if(h) (h.side==='him'?him++:me++); }));
-  document.getElementById('pSplit').textContent = (him+me)===0
-    ? 'Nothing yet.'
-    : him+' toward him, '+me+' toward you. Neither number is supposed to be bigger.';
-}
-
-/* ============================================================
-   TOOLKIT
-   ============================================================ */
-function setTool(t){
-  tool=t;
-  ['ask','repair','hand','thanks'].forEach(k=>{
-    document.getElementById('t-'+k).classList.toggle('on',k===t);
-    document.getElementById('tool-'+k).style.display = k===t?'block':'none';
+const PAGES=[
+ {g:'When you need the words', k:'ask',      t:'How to ask for something', s:'Turn a hint into a sentence he can act on.'},
+ {g:'When you need the words', k:'repair',   t:'What to say when it heats up', s:'Twelve lines that stop it getting worse.'},
+ {g:'Things to try',           k:'respect',  t:'Ways to show respect', s:'Twenty-four small ones. They come up in your daily two as well.'},
+ {g:'Things to try',           k:'together', t:'Ways to be close without touch', s:'Work any week of the month, and with children in the room.'},
+ {g:'Yours to keep',           k:'hand',     t:'Who is carrying what', s:'The jobs you are still remembering for both of you.'},
+ {g:'Yours to keep',           k:'notice',   t:'Things he did', s:'Keep a few. Read them on a bad week.'},
+ {g:'Yours to keep',           k:'dates',    t:'Dates you do not want to miss', s:'Anniversaries, birthdays, the day you got engaged.'},
+ {g:'Yours to keep',           k:'gifts',    t:'Things he would want', s:'Write it down when he says it, not when you need it.'}
+];
+function renderMenu(){
+  let html='', g=null;
+  PAGES.forEach(function(p,i){
+    if(p.g!==g){ if(g!==null) html+='</div>'; g=p.g; html+='<h3'+(i===0?' style="margin-top:2px"':'')+'>'+esc(g)+'</h3><div class="menu">'; }
+    html+='<button class="mi" onclick="openPage(\''+p.k+'\')"><span style="flex:1;min-width:0">'+
+      '<span class="ttl" style="display:block">'+esc(p.t)+'</span>'+
+      '<span class="sub" style="display:block">'+esc(p.s)+'</span></span><span class="arw">&rsaquo;</span></button>';
   });
-  if(t==='repair') renderRepair();
-  if(t==='hand') renderHand();
-  if(t==='thanks') renderThanks();
-  if(t==='ask') renderAskEx();
+  html+='</div>';
+  document.getElementById('moreMenu').innerHTML=html;
 }
-function renderAskEx(){
-  document.getElementById('askEx').innerHTML = ASK_EX.map(p=>
-    '<div class="item" style="display:block"><div class="sub" style="margin:0 0 6px">'+esc(p[0])+'</div><div class="ttl">'+esc(p[1])+'</div></div>'
-  ).join('');
+function openPage(k){
+  page=k;
+  document.getElementById('moreMenu').hidden=true;
+  document.getElementById('morePage').hidden=false;
+  const p=PAGES.filter(function(x){return x.k===k;})[0];
+  document.getElementById('hTitle').textContent=p.t;
+  document.getElementById('hSub').textContent='';
+  renderPage();
+  document.querySelector('main').scrollTop=0;
+}
+function backToMenu(){
+  page=null;
+  document.getElementById('moreMenu').hidden=false;
+  document.getElementById('morePage').hidden=true;
+  document.getElementById('hTitle').textContent='More';
+  document.getElementById('hSub').textContent='Everything that is not today';
+  document.querySelector('main').scrollTop=0;
+}
+function renderPage(){
+  const el=document.getElementById('pageBody');
+  if(page==='ask') el.innerHTML=pgAsk();
+  else if(page==='repair') el.innerHTML=pgRepair();
+  else if(page==='respect') el.innerHTML=pgRespect();
+  else if(page==='together') el.innerHTML=pgTogether();
+  else if(page==='hand') el.innerHTML=pgHand();
+  else if(page==='notice') el.innerHTML=pgNotice();
+  else if(page==='dates') el.innerHTML=pgDates();
+  else if(page==='gifts') el.innerHTML=pgGifts();
+}
+
+/* ---- ask ---- */
+function pgAsk(){
+  return '<p class="lede">Hinting does not land, even when he is trying. A request works when it says what, and when.</p>'+
+  '<div class="card" style="margin-top:14px">'+
+  '<label class="fld" style="margin-top:0" for="aWhat">What you want him to do</label><input type="text" id="aWhat" placeholder="take the kids out">'+
+  '<label class="fld" for="aWhen">When</label><input type="text" id="aWhen" placeholder="Friday, three to four">'+
+  '<button class="btn accent" style="margin-top:16px" onclick="buildAsk()">Make the sentence</button><div id="askOut"></div></div>'+
+  '<h3>A hint, and the sentence instead</h3>'+
+  ASK_EX.map(function(p){ return '<div class="item" style="display:block"><div class="sub" style="margin:0 0 6px">&ldquo;'+esc(p[0])+'&rdquo;</div><div class="ttl">'+esc(p[1])+'</div></div>'; }).join('');
 }
 function buildAsk(){
-  const w=document.getElementById('aWhat').value.trim();
-  const n=document.getElementById('aWhen').value.trim();
+  const w=document.getElementById('aWhat').value.trim(), n=document.getElementById('aWhen').value.trim();
   if(!w) return toast('Put in what you want.');
   const s='Will you '+w+(n?' '+n:'')+'?';
-  document.getElementById('askOut').innerHTML='<div class="notice" style="margin:14px 0 0">'+esc(s)+'</div><button class="btn ghost sm" style="margin-top:10px;width:100%" onclick="copy(\''+esc(s).replace(/'/g,"\\'")+'\')">Copy it</button>';
+  document.getElementById('askOut').innerHTML='<div class="notice" style="margin:16px 0 0">'+esc(s)+'</div>'+
+    '<button class="btn ghost" style="margin-top:10px" data-t="'+esc(s)+'" onclick="copy(this.dataset.t)">Copy it</button>';
 }
-function copy(t){ const d=document.createElement('textarea'); d.value=t.replace(/&#39;/g,"'").replace(/&amp;/g,'&').replace(/&quot;/g,'"'); document.body.appendChild(d); d.select(); try{document.execCommand('copy');}catch(e){} d.remove(); toast('Copied.'); }
-function renderRepair(){
-  document.getElementById('repairList').innerHTML = REPAIR.map(r=>
-    '<button class="tap" onclick="copy(\''+r.replace(/'/g,"\\'")+'\')">'+esc(r)+'</button>').join('');
-}
-function addHand(){
-  const t=document.getElementById('hTask').value.trim();
-  if(!t) return toast('Write the task.');
-  S.hand.unshift({id:uid(),task:t,notice:'me',plan:'me',do:'me'}); save();
-  document.getElementById('hTask').value=''; renderHand();
-}
-function cycleHand(id,part){
-  const h=S.hand.find(x=>x.id===id); if(!h) return;
-  h[part]= h[part]==='me'?'him':'me'; save(); renderHand();
-}
-function delHand(id){ S.hand=S.hand.filter(x=>x.id!==id); save(); renderHand(); }
-function renderHand(){
-  const el=document.getElementById('handList');
-  if(!S.hand.length){ el.innerHTML='<div class="empty">Nothing here yet. Start with one thing you\'d most like to stop thinking about.</div>'; return; }
-  const held=S.hand.reduce((s,h)=>s+(h.notice==='me'?1:0),0);
-  el.innerHTML='<p class="small" style="margin:16px 0 10px">You\'re still remembering '+held+' of '+S.hand.length+'.</p>'+
-   S.hand.map(h=>{
-    const b=(p,lab)=>'<button class="btn ghost sm" style="flex:1;padding:7px 4px;font-size:11.5px;'+(h[p]==='him'?'background:var(--coral-soft);border-color:transparent;color:#B8302A':'')+'" onclick="cycleHand(\''+h.id+'\',\''+p+'\')">'+lab+'<br><b style="font-weight:600">'+(h[p]==='him'?'him':'me')+'</b></button>';
-    return '<div class="card" style="padding:14px"><div style="display:flex;justify-content:space-between;gap:10px"><div class="ttl" style="font-weight:600;font-size:14px">'+esc(h.task)+'</div><button class="x" onclick="delHand(\''+h.id+'\')">&times;</button></div>'+
-      '<div class="row" style="margin-top:11px;gap:7px">'+b('notice','remembering')+b('plan','planning')+b('do','doing')+'</div></div>';
-  }).join('');
-}
-function addThanks(){
-  const w=document.getElementById('thWhat').value.trim();
-  const tr=document.getElementById('thTrait').value.trim();
-  if(!w) return toast('Write what he did.');
-  S.thanks.unshift({id:uid(),what:w,trait:tr,date:today()}); save();
-  document.getElementById('thWhat').value=''; document.getElementById('thTrait').value='';
-  renderThanks(); toast('Saved.');
-}
-function delThanks(id){ S.thanks=S.thanks.filter(x=>x.id!==id); save(); renderThanks(); }
-function randomThanks(){
-  if(!S.thanks.length) return toast('Nothing saved yet.');
-  const t=S.thanks[Math.floor(Math.random()*S.thanks.length)];
-  document.getElementById('thanksOut').innerHTML='<div class="notice">'+esc(t.what)+(t.trait?' &mdash; '+esc(t.trait):'')+'</div>';
-}
-function renderThanks(){
-  const el=document.getElementById('thanksList');
-  el.innerHTML = !S.thanks.length ? '<div class="empty">Once there are a few in here, read them on a bad week.</div>'
-   : '<h3>Saved</h3>'+S.thanks.map(t=>'<div class="item"><div><div class="ttl">'+esc(t.what)+'</div>'+(t.trait?'<div class="sub">'+esc(t.trait)+'</div>':'')+'</div><button class="x" onclick="delThanks(\''+t.id+'\')">&times;</button></div>').join('');
+function copy(t){
+  function done(){ toast('Copied.'); }
+  function fallback(v){
+    const d=document.createElement('textarea'); d.value=v; document.body.appendChild(d); d.select();
+    try{ document.execCommand('copy'); done(); }catch(e){ toast('Select it and copy.'); }
+    d.remove();
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(function(){fallback(t);});
+  else fallback(t);
 }
 
-/* ============================================================
-   IDEAS
-   ============================================================ */
-function setIdea(p){
-  ideaPane=p;
-  ['respect','together','dates','gifts'].forEach(k=>{
-    document.getElementById('i-'+k).classList.toggle('on',k===p);
-    document.getElementById('idea-'+k).style.display = k===p?'block':'none';
-  });
-  if(p==='respect') renderRespect();
-  if(p==='together') renderTogether();
-  if(p==='dates') renderDates();
-  if(p==='gifts') renderGifts();
+/* ---- repair ---- */
+function pgRepair(){
+  return '<p class="lede">These work when they come early, before it has gone far. Pick one you would actually say.</p><div style="margin-top:16px">'+
+   REPAIR.map(function(r){ return '<button class="tap" data-t="'+esc(r)+'" onclick="copy(this.dataset.t)"><span>'+esc(r)+'</span><span class="cp">copy</span></button>'; }).join('')+'</div>';
 }
-function rollRespect(){
-  const r=RESPECT[Math.floor(Math.random()*RESPECT.length)];
-  document.getElementById('resOut').innerHTML='<div class="notice"><b style="font-weight:600">'+esc(r.t)+'</b>'+(r.d?'<br>'+esc(r.d):'')+'</div>';
+
+/* ---- respect / together ---- */
+function pgRespect(){
+  return '<p class="lede">Respect is not a man’s need and love a woman’s. When researchers asked people what respect in a marriage looks like, men and women described nearly the same thing. What does hold up is that its opposite, contempt, does more damage than anything else.</p>'+
+   '<button class="btn accent" style="margin:16px 0" onclick="rollRespect()">Give me one for today</button><div id="rollOut"></div>'+
+   '<h3>All of them</h3>'+
+   RESPECT.map(function(r){ return '<div class="item" style="display:block"><div class="ttl">'+esc(r.t)+'</div>'+(r.d?'<div class="sub">'+esc(r.d)+'</div>':'')+'</div>'; }).join('');
 }
-function renderRespect(){
-  document.getElementById('resList').innerHTML = RESPECT.map(r=>
-    '<div class="item" style="display:block"><div class="ttl">'+esc(r.t)+'</div>'+(r.d?'<div class="sub">'+esc(r.d)+'</div>':'')+'</div>').join('');
+function rollRespect(){ const r=RESPECT[Math.floor(Math.random()*RESPECT.length)];
+  document.getElementById('rollOut').innerHTML='<div class="notice"><b>'+esc(r.t)+'</b>'+(r.d?'<br>'+esc(r.d):'')+'</div>'; }
+function pgTogether(){
+  return '<p class="lede">Nothing here is physical, so all of it works in any week of the month. Most of it works with children awake in the room.</p>'+
+   '<button class="btn accent" style="margin:16px 0" onclick="rollTogether()">Give me one</button><div id="rollOut"></div>'+
+   '<h3>All of them</h3>'+TOGETHER.map(function(t){ return '<div class="item"><div class="ttl" style="font-weight:400">'+esc(t)+'</div></div>'; }).join('');
 }
-function rollTogether(){
-  const t=TOGETHER[Math.floor(Math.random()*TOGETHER.length)];
-  document.getElementById('togOut').innerHTML='<div class="notice">'+esc(t)+'</div>';
+function rollTogether(){ const t=TOGETHER[Math.floor(Math.random()*TOGETHER.length)];
+  document.getElementById('rollOut').innerHTML='<div class="notice">'+esc(t)+'</div>'; }
+
+/* ---- hand off ---- */
+function pgHand(){
+  const held=S.hand.filter(function(h){return h.notice==='me';}).length;
+  let body;
+  if(!S.hand.length){
+    body='<div class="empty">Nothing here yet.<br>Start with the one thing you would most like to stop thinking about.</div>'+
+    '<div class="item ex" style="display:block"><div class="ttl">For example: Shabbos clothes for the boys</div><div class="sub">remembering &middot; planning &middot; doing</div></div>';
+  } else {
+    body='<div class="notice calm">You are still remembering '+held+' of '+S.hand.length+'.</div>'+S.hand.map(function(h){
+      function b(p,lab){ return '<button class="btn ghost sm" style="flex:1;padding:9px 4px;font-size:11.5px;line-height:1.4'+
+        (h[p]==='him'?';background:var(--coral-soft);border-color:transparent;color:#B8302A':'')+
+        '" onclick="cycleHand(\''+h.id+'\',\''+p+'\')">'+lab+'<br><b>'+(h[p]==='him'?'him':'me')+'</b></button>'; }
+      return '<div class="card" style="padding:15px"><div style="display:flex;justify-content:space-between;gap:10px">'+
+        '<div class="ttl" style="font-weight:600;font-size:14.5px">'+esc(h.task)+'</div>'+
+        '<button class="x" onclick="delHand(\''+h.id+'\')" aria-label="Remove">&times;</button></div>'+
+        '<div class="row" style="margin-top:12px;gap:7px">'+b('notice','remembering')+b('plan','planning')+b('do','doing')+'</div></div>';
+    }).join('');
+  }
+  return '<p class="lede">A job has three parts: remembering it, planning it, doing it. If you are still remembering it, you still have it. Tap a part to move it to him.</p>'+
+   '<div class="card" style="margin-top:14px"><label class="fld" style="margin-top:0" for="hTask">The job</label>'+
+   '<input type="text" id="hTask" placeholder="Shabbos clothes for the boys"><button class="btn accent" style="margin-top:12px" onclick="addHand()">Add</button></div>'+body;
 }
-function renderTogether(){
-  document.getElementById('togList').innerHTML = TOGETHER.map(t=>'<div class="item"><div class="ttl" style="font-weight:400">'+esc(t)+'</div></div>').join('');
+function addHand(){ const t=document.getElementById('hTask').value.trim(); if(!t) return toast('Write the job.');
+  S.hand.unshift({id:uid(),task:t,notice:'me',plan:'me',do:'me'}); save(); renderPage(); }
+function cycleHand(id,part){ const h=S.hand.filter(function(x){return x.id===id;})[0]; if(h){ h[part]=h[part]==='me'?'him':'me'; save(); renderPage(); } }
+function delHand(id){ S.hand=S.hand.filter(function(x){return x.id!==id;}); save(); renderPage(); }
+
+/* ---- notice ---- */
+function pgNotice(){
+  const list = S.thanks.length
+   ? '<h3>Saved</h3>'+S.thanks.map(function(t){ return '<div class="item"><div><div class="ttl">'+esc(t.what)+'</div>'+(t.trait?'<div class="sub">'+esc(t.trait)+'</div>':'')+'</div><button class="x" onclick="delThanks(\''+t.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('')
+   : '<div class="empty">Nothing saved yet.</div><div class="item ex"><div><div class="ttl">For example: got up with the baby</div><div class="sub">he notices when I am finished</div></div></div>';
+  return '<p class="lede">What he did, and what it says about him. The second half is the part that lands.</p>'+
+   '<div class="card" style="margin-top:14px"><label class="fld" style="margin-top:0" for="thWhat">What he did</label><input type="text" id="thWhat" placeholder="got up with the baby">'+
+   '<label class="fld" for="thTrait">What that says about him</label><input type="text" id="thTrait" placeholder="he notices when I am finished">'+
+   '<button class="btn accent" style="margin-top:14px" onclick="addThanks()">Save it</button></div>'+
+   (S.thanks.length?'<button class="btn ghost" style="margin-bottom:14px" onclick="randomThanks()">Show me one</button><div id="rollOut"></div>':'')+list;
 }
-function addDate(){
-  const n=document.getElementById('dName').value.trim(), d=document.getElementById('dDate').value;
-  if(!n||!d) return toast('Needs a name and a date.');
-  S.dates.push({id:uid(),name:n,date:d,yearly:document.getElementById('dYearly').value==='1'}); save();
-  document.getElementById('dName').value=''; document.getElementById('dDate').value='';
-  renderDates(); renderToday();
-}
-function delDate(id){ S.dates=S.dates.filter(x=>x.id!==id); save(); renderDates(); renderToday(); }
-function daysTo(d,yearly){
-  const n=new Date(); n.setHours(0,0,0,0);
-  let t=new Date(d+'T00:00:00');
+function addThanks(){ const w=document.getElementById('thWhat').value.trim(); if(!w) return toast('Write what he did.');
+  S.thanks.unshift({id:uid(),what:w,trait:document.getElementById('thTrait').value.trim(),date:today()}); save(); renderPage(); toast('Saved.'); }
+function delThanks(id){ S.thanks=S.thanks.filter(function(x){return x.id!==id;}); save(); renderPage(); }
+function randomThanks(){ if(!S.thanks.length) return; const t=S.thanks[Math.floor(Math.random()*S.thanks.length)];
+  document.getElementById('rollOut').innerHTML='<div class="notice">'+esc(t.what)+(t.trait?' &mdash; '+esc(t.trait):'')+'</div>'; }
+
+/* ---- dates ---- */
+function daysTo(d,yearly){ const n=new Date(); n.setHours(0,0,0,0); const t=new Date(d+'T00:00:00');
   if(yearly){ t.setFullYear(n.getFullYear()); if(t<n) t.setFullYear(n.getFullYear()+1); }
-  return Math.round((t-n)/86400000);
-}
+  return Math.round((t-n)/86400000); }
 function nextDate(){
-  const l=S.dates.map(d=>({...d,days:daysTo(d.date,d.yearly)})).filter(d=>d.days>=0&&d.days<=30).sort((a,b)=>a.days-b.days);
-  return l[0]||null;
+  return S.dates.map(function(d){ return Object.assign({},d,{days:daysTo(d.date,d.yearly)}); })
+    .filter(function(d){ return d.days>=0 && d.days<=30; })
+    .sort(function(a,b){ return a.days-b.days; })[0]||null;
 }
-function renderDates(){
-  const el=document.getElementById('dateList');
-  if(!S.dates.length){ el.innerHTML='<div class="empty">Nothing saved yet.</div>'; return; }
-  const l=S.dates.map(d=>({...d,days:daysTo(d.date,d.yearly)})).sort((a,b)=>a.days-b.days);
-  el.innerHTML='<h3>Saved</h3>'+l.map(d=>'<div class="item"><div><div class="ttl">'+esc(d.name)+'</div><div class="sub">'+(d.days===0?'today':d.days+(d.days===1?' day':' days')+' from now')+'</div></div><button class="x" onclick="delDate(\''+d.id+'\')">&times;</button></div>').join('');
+function pgDates(){
+  const l=S.dates.map(function(d){ return Object.assign({},d,{days:daysTo(d.date,d.yearly)}); }).sort(function(a,b){ return a.days-b.days; });
+  const list=l.length?'<h3>Saved</h3>'+l.map(function(d){ return '<div class="item"><div><div class="ttl">'+esc(d.name)+'</div><div class="sub">'+(d.days===0?'today':d.days+(d.days===1?' day':' days')+' from now')+'</div></div><button class="x" onclick="delDate(\''+d.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('')
+   :'<div class="empty">Nothing saved yet.</div>';
+  return '<div class="card"><label class="fld" style="margin-top:0" for="dName">What it is</label><input type="text" id="dName" placeholder="Our anniversary">'+
+   '<label class="fld" for="dDate">The date</label><input type="date" id="dDate">'+
+   '<label class="fld" for="dYearly">Repeats every year</label><select id="dYearly"><option value="1">Yes</option><option value="0">No</option></select>'+
+   '<button class="btn accent" style="margin-top:16px" onclick="addDate()">Add</button></div>'+list;
 }
-function addGift(){
-  const n=document.getElementById('gName').value.trim();
-  if(!n) return toast('Write the thing.');
-  S.gifts.unshift({id:uid(),name:n,when:document.getElementById('gWhen').value.trim(),got:false}); save();
-  document.getElementById('gName').value=''; document.getElementById('gWhen').value='';
-  renderGifts();
+function addDate(){ const n=document.getElementById('dName').value.trim(), d=document.getElementById('dDate').value;
+  if(!n||!d) return toast('Needs a name and a date.');
+  S.dates.push({id:uid(),name:n,date:d,yearly:document.getElementById('dYearly').value==='1'}); save(); renderPage(); }
+function delDate(id){ S.dates=S.dates.filter(function(x){return x.id!==id;}); save(); renderPage(); }
+
+/* ---- gifts ---- */
+function pgGifts(){
+  const list=S.gifts.length?'<h3>Your list</h3>'+S.gifts.map(function(g){ return '<div class="item"><div style="flex:1;min-width:0" onclick="gotGift(\''+g.id+'\')"><div class="ttl" style="'+(g.got?'opacity:.5;text-decoration:line-through':'')+'">'+esc(g.name)+'</div>'+(g.when?'<div class="sub">'+esc(g.when)+'</div>':'')+'</div><button class="x" onclick="delGift(\''+g.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('')
+   :'<div class="empty">Nothing yet.</div><div class="item ex"><div><div class="ttl">For example: the sefer he mentioned</div><div class="sub">his birthday</div></div></div>';
+  return '<div class="card"><label class="fld" style="margin-top:0" for="gName">The thing</label><input type="text" id="gName" placeholder="the sefer he mentioned">'+
+   '<label class="fld" for="gWhen">For when</label><input type="text" id="gWhen" placeholder="his birthday">'+
+   '<button class="btn accent" style="margin-top:16px" onclick="addGift()">Add</button></div>'+list;
 }
-function gotGift(id){ const g=S.gifts.find(x=>x.id===id); if(g){g.got=!g.got; save(); renderGifts();} }
-function delGift(id){ S.gifts=S.gifts.filter(x=>x.id!==id); save(); renderGifts(); }
-function renderGifts(){
-  const el=document.getElementById('giftList');
-  if(!S.gifts.length){ el.innerHTML='<div class="empty">Nothing yet.</div>'; return; }
-  el.innerHTML='<h3>Your list</h3>'+S.gifts.map(g=>'<div class="item"><div style="flex:1" onclick="gotGift(\''+g.id+'\')"><div class="ttl" style="'+(g.got?'opacity:.5;text-decoration:line-through':'')+'">'+esc(g.name)+'</div>'+(g.when?'<div class="sub">'+esc(g.when)+'</div>':'')+'</div><button class="x" onclick="delGift(\''+g.id+'\')">&times;</button></div>').join('');
-}
+function addGift(){ const n=document.getElementById('gName').value.trim(); if(!n) return toast('Write the thing.');
+  S.gifts.unshift({id:uid(),name:n,when:document.getElementById('gWhen').value.trim(),got:false}); save(); renderPage(); }
+function gotGift(id){ const g=S.gifts.filter(function(x){return x.id===id;})[0]; if(g){ g.got=!g.got; save(); renderPage(); } }
+function delGift(id){ S.gifts=S.gifts.filter(function(x){return x.id!==id;}); save(); renderPage(); }
 
 /* ============================================================
    SETTINGS
    ============================================================ */
 function tog(k){ S[k]=!S[k]; save(); renderSettings(); renderToday(); }
+function toggleAdv(){ advOpen=!advOpen; document.getElementById('adv').hidden=!advOpen;
+  document.getElementById('advBtn').textContent=advOpen?'Fewer settings':'More settings'; }
 function saveTimes(){ S.shStart=document.getElementById('shStart').value||'18:00'; S.shEnd=document.getElementById('shEnd').value||'20:30'; save(); renderToday(); }
 function saveName(){ S.appName=document.getElementById('appName').value.trim()||'Happy Marriage'; save(); document.title=S.appName; toast('Saved.'); }
-function addCustom(){
-  const t=document.getElementById('cTitle').value.trim();
-  if(!t) return toast('Write the thing.');
-  S.custom.push({id:uid(),title:t,desc:document.getElementById('cDesc').value.trim(),pool:document.getElementById('cPool').value});
-  save();
-  document.getElementById('cTitle').value=''; document.getElementById('cDesc').value='';
-  renderSettings(); toast('Added to the rotation.');
-}
-function delCustom(id){ S.custom=S.custom.filter(x=>x.id!==id); save(); renderSettings(); }
+function addCustom(){ const t=document.getElementById('cTitle').value.trim(); if(!t) return toast('Write the thing.');
+  S.custom.push({id:uid(),title:t,desc:document.getElementById('cDesc').value.trim(),pool:document.getElementById('cPool').value}); save();
+  document.getElementById('cTitle').value=''; document.getElementById('cDesc').value=''; renderSettings(); toast('It is in the rotation now.'); }
+function delCustom(id){ S.custom=S.custom.filter(function(x){return x.id!==id;}); save(); renderSettings(); }
 function renderSettings(){
-  [['touch','touchFree'],['pause','pause'],['shab','shabbos'],['fri','lightFriday'],['rm','remMorning'],['re','remEvening'],['rd','remDates']]
-    .forEach(([el,k])=>document.getElementById('sw-'+el).classList.toggle('on',!!S[k]));
+  ['touchFree','pause','shabbos','lightFriday','remMorning','remEvening','remDates'].forEach(function(k){
+    const el=document.getElementById('sw-'+k); if(el) el.classList.toggle('on',!!S[k]); });
   document.getElementById('sw-pin').classList.toggle('on',!!S.pin);
   document.getElementById('shStart').value=S.shStart;
   document.getElementById('shEnd').value=S.shEnd;
   document.getElementById('appName').value=S.appName;
-  const el=document.getElementById('customList');
-  el.innerHTML = !S.custom.length? '' : S.custom.map(c=>'<div class="item"><div><div class="ttl">'+esc(c.title)+'</div><div class="sub">'+(c.pool==='him'?'for him':'for you')+'</div></div><button class="x" onclick="delCustom(\''+c.id+'\')">&times;</button></div>').join('');
+  document.getElementById('customList').innerHTML = S.custom.map(function(c){ return '<div class="item"><div><div class="ttl">'+esc(c.title)+'</div><div class="sub">'+(c.pool==='him'?'for him':'for you')+'</div></div><button class="x" onclick="delCustom(\''+c.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('');
 }
-function askNotif(){
-  if(!('Notification' in window)) return toast('This browser doesn\'t do notifications.');
-  Notification.requestPermission().then(p=>toast(p==='granted'?'On.':'Not allowed.'));
-}
-function exportData(){
-  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='happy-marriage-backup.json'; a.click();
-}
-function wipe(){
-  openSheet('Erase everything',
-    '<p class="small">This clears every note, date and day you\'ve checked off on this device. It can\'t be undone.</p>',
-    'Erase', ()=>{
-      try{ localStorage.removeItem(KEY); }catch(e){}
-      S=JSON.parse(JSON.stringify(DEF)); save(); closeSheet(); renderAll(); goTo('today'); toast('Erased.');
-    });
-}
+function askNotif(){ if(!('Notification' in window)) return toast('This browser does not do notifications.');
+  Notification.requestPermission().then(function(p){ toast(p==='granted'?'On.':'Not allowed.'); }); }
+function exportData(){ const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='happy-marriage-backup.json'; a.click(); }
 
 /* ============================================================
-   PIN
+   DIALOG / PIN / WELCOME
    ============================================================ */
-let sheetGo=null;
 function openSheet(title,body,go,fn){
   document.getElementById('shTitle').textContent=title;
   document.getElementById('shBody').innerHTML=body;
@@ -987,61 +843,72 @@ function closeSheet(){ document.getElementById('sheet').hidden=true; sheetGo=nul
 function togglePin(){
   if(S.pin){ S.pin=''; save(); renderSettings(); toast('PIN off.'); return; }
   openSheet('Pick four digits',
-    '<label class="fld" style="margin-top:0" for="pinA">Four digits</label><input type="password" inputmode="numeric" maxlength="4" id="pinA" autocomplete="off">'+
-    '<label class="fld" for="pinB">Again</label><input type="password" inputmode="numeric" maxlength="4" id="pinB" autocomplete="off">',
-    'Save', ()=>{
-      const a=document.getElementById('pinA').value, b=document.getElementById('pinB').value;
-      if(!/^\d{4}$/.test(a)) return toast('Four digits.');
-      if(a!==b) return toast('Those didn\'t match.');
-      S.pin=a; save(); closeSheet(); toast('PIN on.');
-    });
+   '<label class="fld" style="margin-top:0" for="pinA">Four digits</label><input type="password" inputmode="numeric" maxlength="4" id="pinA" autocomplete="off">'+
+   '<label class="fld" for="pinB">Again</label><input type="password" inputmode="numeric" maxlength="4" id="pinB" autocomplete="off">',
+   'Save',function(){
+     const a=document.getElementById('pinA').value, b=document.getElementById('pinB').value;
+     if(!/^[0-9]{4}$/.test(a)) return toast('Four digits.');
+     if(a!==b) return toast('Those did not match.');
+     S.pin=a; save(); closeSheet(); toast('PIN on.');
+   });
+}
+function wipe(){
+  openSheet('Erase everything','<p class="small">This clears every note, date and day you have checked off on this device. It cannot be undone.</p>',
+   'Erase',function(){
+     try{ localStorage.removeItem(KEY); }catch(e){}
+     S=JSON.parse(JSON.stringify(DEF)); S.seen=true; save(); closeSheet(); page=null; renderAll(); goTo('today'); toast('Erased.');
+   });
 }
 function buildPad(){
-  const pad=document.getElementById('pad');
-  pad.innerHTML=['1','2','3','4','5','6','7','8','9','','0','←'].map(k=>k===''?'<div></div>':'<button onclick="pinKey(\''+k+'\')">'+k+'</button>').join('');
+  document.getElementById('pad').innerHTML=['1','2','3','4','5','6','7','8','9','','0','back']
+   .map(function(k){ return k===''?'<div></div>':'<button onclick="pinKey(\''+k+'\')">'+(k==='back'?'&larr;':k)+'</button>'; }).join('');
 }
 function pinKey(k){
-  if(k==='←') pinBuf=pinBuf.slice(0,-1); else if(pinBuf.length<4) pinBuf+=k;
+  if(k==='back') pinBuf=pinBuf.slice(0,-1); else if(pinBuf.length<4) pinBuf+=k;
   for(let i=0;i<4;i++) document.getElementById('p'+i).classList.toggle('f',i<pinBuf.length);
   if(pinBuf.length===4){
-    if(pinBuf===S.pin){ document.getElementById('lock').classList.remove('on'); pinBuf=''; }
-    else { pinBuf=''; setTimeout(()=>{for(let i=0;i<4;i++) document.getElementById('p'+i).classList.remove('f');},160); }
+    if(pinBuf===S.pin){ document.getElementById('lock').hidden=true; pinBuf=''; }
+    else { pinBuf=''; setTimeout(function(){ for(let i=0;i<4;i++) document.getElementById('p'+i).classList.remove('f'); },160); }
   }
 }
+function closeWelcome(){ S.seen=true; save(); document.getElementById('welcome').hidden=true; }
 
 /* ============================================================
    NAV
    ============================================================ */
-const TITLES={today:'Today',progress:'Progress',toolkit:'Toolkit',ideas:'Ideas',settings:'Settings'};
+const TITLES={today:'Today',more:'More',settings:'Settings'};
+const SUBS={today:'',more:'Everything that is not today',settings:'Yours to set'};
 function goTo(v){
   view=v;
-  ['today','progress','toolkit','ideas','settings'].forEach(k=>{
-    document.getElementById('v-'+k).classList.toggle('on',k===v);
+  ['today','more','settings'].forEach(function(k){
+    document.getElementById('v-'+k).hidden = (k!==v);
     document.getElementById('n-'+k).classList.toggle('on',k===v);
   });
-  document.getElementById('hTitle').textContent=TITLES[v];
-  const sub={progress:'No catching up required.',toolkit:'Things to say, and how.',ideas:'For when you\'re out of them.',settings:'Yours to set.'};
-  document.getElementById('hSub').textContent = v==='today'? '' : sub[v];
+  if(!(v==='more' && page)){
+    document.getElementById('hTitle').textContent=TITLES[v];
+    document.getElementById('hSub').textContent=SUBS[v]||'';
+  }
   document.querySelector('main').scrollTop=0;
   if(v==='today') renderToday();
-  if(v==='progress') renderProgress();
-  if(v==='toolkit') setTool(tool);
-  if(v==='ideas') setIdea(ideaPane);
+  if(v==='more'){ renderMenu(); if(page) renderPage(); }
   if(v==='settings') renderSettings();
 }
-
-function renderAll(){ renderToday(); renderProgress(); renderSettings(); setTool(tool); setIdea(ideaPane); }
+function renderAll(){ renderToday(); renderMenu(); renderSettings(); }
 
 /* ============================================================
    BOOT
    ============================================================ */
 document.title=S.appName;
-document.getElementById('shGo').addEventListener('click',()=>{ if(sheetGo) sheetGo(); });
-document.getElementById('sheet').addEventListener('click',e=>{ if(e.target.id==='sheet') closeSheet(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !document.getElementById('sheet').hidden) closeSheet(); });
 buildPad();
-if(S.pin) document.getElementById('lock').classList.add('on');
 renderAll();
 goTo('today');
-
+if(!S.seen) document.getElementById('welcome').hidden=false;
+if(S.pin) document.getElementById('lock').hidden=false;
+document.getElementById('shGo').addEventListener('click',function(){ if(sheetGo) sheetGo(); });
+document.getElementById('sheet').addEventListener('click',function(e){ if(e.target.id==='sheet') closeSheet(); });
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  if(!document.getElementById('sheet').hidden) closeSheet();
+  else if(view==='more' && page) backToMenu();
+});
 </script>
