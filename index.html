@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Happy Marriage">
+<meta name="description" content="Two small things a day for your marriage.">
+<meta name="theme-color" content="#1F1B56">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231F1B56'/%3E%3Cg%3E%3Cpath d='M30 32 L44 32 L36 68 L22 68 Z' fill='%23F3A79E'/%3E%3Cpath d='M48 32 L62 32 L54 68 L40 68 Z' fill='%23EE6E64'/%3E%3Cpath d='M66 32 L80 32 L72 68 L58 68 Z' fill='%23EB4137'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231F1B56'/%3E%3Cg%3E%3Cpath d='M30 32 L44 32 L36 68 L22 68 Z' fill='%23F3A79E'/%3E%3Cpath d='M48 32 L62 32 L54 68 L40 68 Z' fill='%23EE6E64'/%3E%3Cpath d='M66 32 L80 32 L72 68 L58 68 Z' fill='%23EB4137'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<title>Happy Marriage</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1F1B56; --coral:#EB4137; --coral-tint:#F3A79E;
+  --coral-soft:#FDEDEB; --navy-soft:#EFEEF5;
+  --cream:#FAF9F6; --card:#FFFFFF;
+  --muted:#7472A0; --border:rgba(31,27,86,0.12);
+  --accent:var(--coral);
+  --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--cream);font-family:'Poppins',system-ui,sans-serif;color:var(--navy);-webkit-font-smoothing:antialiased}
+body{overflow:hidden}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+
+/* ---------- shell ---------- */
+#shell{max-width:540px;margin:0 auto;height:100%;display:flex;flex-direction:column;background:var(--cream);position:relative}
+header.top{padding:calc(var(--safe-top) + 18px) 20px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+header.top h1{font-size:23px;font-weight:600;letter-spacing:-.01em}
+header.top .sub{font-size:13px;color:var(--muted);margin-top:2px}
+main{flex:1;overflow-y:auto;padding:4px 20px 110px;-webkit-overflow-scrolling:touch}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- bits ---------- */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
+.card.flat{background:transparent;border:none;padding:0}
+h2{font-size:15px;font-weight:600;margin-bottom:4px}
+h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:22px 0 10px}
+p.lede{font-size:14px;color:var(--muted);line-height:1.55}
+.small{font-size:12.5px;color:var(--muted);line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:500;width:100%}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}
+.btn.accent{background:var(--accent)}
+.btn.sm{padding:9px 14px;font-size:13px;width:auto;border-radius:10px}
+.btn:active{transform:scale(.985)}
+input[type=text],input[type=date],input[type=time],input[type=password],input[type=email],input[type=number],select,textarea{
+  width:100%;background:var(--cream);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+label.fld{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:500}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* segmented */
+.seg{display:flex;background:rgba(31,27,86,.06);border-radius:13px;padding:3px;gap:3px}
+.seg button{flex:1;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(31,27,86,.12)}
+
+/* toggle */
+.tg{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
+.tg:last-child{border-bottom:none}
+.tg .lab{font-size:14px;font-weight:500}
+.tg .hint{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+.sw{width:46px;height:27px;border-radius:14px;background:rgba(31,27,86,.16);position:relative;flex:0 0 46px;transition:background .18s;margin-top:2px}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on{background:var(--accent)}
+.sw.on::after{transform:translateX(19px)}
+
+/* habit cards */
+.habit{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;transition:border-color .15s}
+.habit.done{border-color:var(--accent);background:linear-gradient(0deg,rgba(235,65,55,.04),rgba(235,65,55,.04)),var(--card)}
+.habit .box{flex:0 0 26px;width:26px;height:26px;border-radius:9px;border:2px solid var(--border);margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.habit.done .box{background:var(--accent);border-color:var(--accent)}
+.habit .box svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transition:opacity .15s}
+.habit.done .box svg{opacity:1}
+.habit .t{font-size:15px;font-weight:600;line-height:1.3}
+.habit.done .t{opacity:.55}
+.habit .d{font-size:13px;color:var(--muted);line-height:1.5;margin-top:5px}
+.pill{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-top:9px;background:rgba(31,27,86,.06);color:var(--muted)}
+.pill.him{background:var(--coral-soft);color:#B8302A}
+.pill.me{background:var(--navy-soft);color:#4A4784}
+
+/* notice strip */
+.notice{border-radius:14px;padding:13px 16px;font-size:13px;line-height:1.55;margin-bottom:14px;background:var(--coral-soft);color:var(--navy);border-left:3px solid var(--coral)}
+.notice.calm{background:var(--navy-soft);color:var(--muted);border-left-color:var(--muted)}
+
+/* streak */
+.bignum{font-size:54px;font-weight:600;line-height:1;letter-spacing:-.03em}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center}
+.stat b{display:block;font-size:22px;font-weight:600}
+.stat span{font-size:11px;color:var(--muted);display:block;margin-top:3px;line-height:1.3}
+.dots{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.dot{aspect-ratio:1;border-radius:8px;background:rgba(31,27,86,.06);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)}
+.dot.hit{background:var(--accent);color:#fff}
+.dot.future{opacity:.35}
+
+/* lists */
+.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.item .ttl{font-size:14px;font-weight:500;line-height:1.35}
+.item .sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+.x{flex:0 0 auto;font-size:19px;color:var(--muted);line-height:1;padding:2px 4px;opacity:.6}
+.tap{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:8px;font-size:14px;line-height:1.4;width:100%;text-align:left}
+.tap:active{border-color:var(--accent)}
+
+/* empty */
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;line-height:1.6}
+
+/* nav */
+nav{position:absolute;bottom:0;left:0;right:0;background:rgba(250,249,246,.94);backdrop-filter:blur(14px);border-top:1px solid var(--border);display:flex;padding:8px 4px calc(var(--safe-bottom) + 8px)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;font-weight:500;padding:4px 0}
+nav button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--accent)}
+
+/* toast */
+#toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:100px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.22s;z-index:900;max-width:88%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* lock */
+#lock{position:fixed;inset:0;background:var(--navy);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;padding:30px}
+#lock.on{display:flex}
+#lock .pins{display:flex;gap:11px}
+#lock .pins i{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.25);display:block}
+#lock .pins i.f{background:#fff}
+#lock .pad{display:grid;grid-template-columns:repeat(3,72px);gap:13px;margin-top:8px}
+#lock .pad button{height:62px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:22px;font-weight:400}
+
+a{color:var(--coral)}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cream:#141233; --card:#1C1A42; --navy:#F4F3FA; --muted:#9A98C4;
+    --border:rgba(255,255,255,.12); --coral:#FF6A5F; --coral-tint:#F3A79E;
+    --coral-soft:rgba(255,106,95,.14); --navy-soft:rgba(255,255,255,.06);
+  }
+  :root:not([data-theme="light"]) nav{background:rgba(20,18,51,.94)}
+  :root:not([data-theme="light"]) .seg{background:rgba(255,255,255,.07)}
+  :root:not([data-theme="light"]) .seg button.on{background:#2A2756}
+  :root:not([data-theme="light"]) #toast{background:#2A2756}
+  :root:not([data-theme="light"]) .pill.him{color:#FF9A91}
+  :root:not([data-theme="light"]) .pill.me{color:#C3C1E6}
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+  <header class="top">
+    <div style="display:flex;align-items:center;gap:11px">
+      <svg width="20" height="22" viewBox="0 0 60 70" aria-hidden="true" style="flex:0 0 auto;margin-bottom:2px">
+        <path d="M14 8 L26 8 L19 62 L7 62 Z" fill="#F3A79E"/>
+        <path d="M30 8 L42 8 L35 62 L23 62 Z" fill="#EE6E64"/>
+        <path d="M46 8 L58 8 L51 62 L39 62 Z" fill="#EB4137"/>
+      </svg>
+    <div>
+      <h1 id="hTitle">Today</h1>
+      <div class="sub" id="hSub">Two small things.</div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ TODAY ============ -->
+    <section class="view on" id="v-today">
+      <div class="seg" style="margin-bottom:14px">
+        <button id="m-mix" onclick="setMode('mix')">Mix</button>
+        <button id="m-him" onclick="setMode('him')">For him</button>
+        <button id="m-me" onclick="setMode('me')">For me</button>
+      </div>
+      <div id="todayNotice"></div>
+      <div id="pairWrap"></div>
+      <button class="btn ghost" onclick="reroll()" style="margin-top:4px">Give me different ones</button>
+      <div id="upNext"></div>
+    </section>
+
+    <!-- ============ PROGRESS ============ -->
+    <section class="view" id="v-progress">
+      <div class="card" style="text-align:center;padding:26px 18px">
+        <div class="bignum" id="pRun">0</div>
+        <div class="small" style="margin-top:6px" id="pRunLab">days in a row</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="pDays">0</b><span>days you showed up</span></div>
+        <div class="stat"><b id="pActs">0</b><span>things done</span></div>
+        <div class="stat"><b id="pBest">0</b><span>longest run</span></div>
+      </div>
+      <h3>This month</h3>
+      <div class="card">
+        <div class="small" id="pMonthLab"></div>
+        <div class="dots" id="pDots"></div>
+      </div>
+      <h3>What you've been picking</h3>
+      <div class="card">
+        <div class="small" id="pSplit"></div>
+      </div>
+      <p class="small" style="margin-top:18px;text-align:center">Missed days don't show up here. There's nothing to catch up on.</p>
+    </section>
+
+    <!-- ============ TOOLKIT ============ -->
+    <section class="view" id="v-toolkit">
+      <div class="seg" style="margin-bottom:16px">
+        <button id="t-ask" onclick="setTool('ask')">Ask</button>
+        <button id="t-repair" onclick="setTool('repair')">Repair</button>
+        <button id="t-hand" onclick="setTool('hand')">Hand off</button>
+        <button id="t-thanks" onclick="setTool('thanks')">Notice</button>
+      </div>
+
+      <div id="tool-ask" class="tool">
+        <h2>Say it straight</h2>
+        <p class="lede">Hinting doesn't land, even when he's trying. A request works better when it says what, and when.</p>
+        <div class="card" style="margin-top:14px">
+          <label class="fld">What you want</label>
+          <input type="text" id="aWhat" placeholder="take the kids out">
+          <label class="fld">When</label>
+          <input type="text" id="aWhen" placeholder="Friday, three to four">
+          <button class="btn accent" style="margin-top:14px" onclick="buildAsk()">Make the sentence</button>
+          <div id="askOut"></div>
+        </div>
+        <h3>Hint, and the sentence instead</h3>
+        <div id="askEx"></div>
+      </div>
+
+      <div id="tool-repair" class="tool" style="display:none">
+        <h2>Lines for the middle of it</h2>
+        <p class="lede">These work when they come early, before it's gone far. Pick one you'd actually say. Tap to copy.</p>
+        <div style="margin-top:14px" id="repairList"></div>
+      </div>
+
+      <div id="tool-hand" class="tool" style="display:none">
+        <h2>Hand it off</h2>
+        <p class="lede">A task has three parts. Remembering it, planning it, doing it. If you're still remembering it, you still have it.</p>
+        <div class="card" style="margin-top:14px">
+          <label class="fld">The task</label>
+          <input type="text" id="hTask" placeholder="Shabbos clothes for the boys">
+          <button class="btn accent" style="margin-top:12px" onclick="addHand()">Add</button>
+        </div>
+        <div id="handList"></div>
+      </div>
+
+      <div id="tool-thanks" class="tool" style="display:none">
+        <h2>Notice one thing</h2>
+        <p class="lede">What he did, and what it says about him. The second half is the part that lands.</p>
+        <div class="card" style="margin-top:14px">
+          <label class="fld">What he did</label>
+          <input type="text" id="thWhat" placeholder="got up with the baby">
+          <label class="fld">What that says about him</label>
+          <input type="text" id="thTrait" placeholder="he notices when I'm finished">
+          <button class="btn accent" style="margin-top:12px" onclick="addThanks()">Save it</button>
+        </div>
+        <button class="btn ghost" onclick="randomThanks()" style="margin-bottom:14px">Show me one</button>
+        <div id="thanksOut"></div>
+        <div id="thanksList"></div>
+      </div>
+    </section>
+
+    <!-- ============ IDEAS ============ -->
+    <section class="view" id="v-ideas">
+      <div class="seg" style="margin-bottom:16px">
+        <button id="i-respect" onclick="setIdea('respect')">Respect</button>
+        <button id="i-together" onclick="setIdea('together')">Together</button>
+        <button id="i-dates" onclick="setIdea('dates')">Dates</button>
+        <button id="i-gifts" onclick="setIdea('gifts')">Gifts</button>
+      </div>
+
+      <div id="idea-respect" class="ideaPane">
+        <h2>Things that read as respect</h2>
+        <p class="lede">Respect isn't a man's need and love a woman's &mdash; when researchers asked people what respect in a marriage actually looks like, men and women described almost the same thing. What's true is that the opposite of it, contempt, does more damage than anything else a marriage does. These are the ordinary, small versions.</p>
+        <button class="btn accent" style="margin:14px 0" onclick="rollRespect()">Give me one for today</button>
+        <div id="resOut"></div>
+        <h3>The whole list</h3>
+        <div id="resList"></div>
+        <p class="small" style="margin:14px 0 4px">These are in the daily rotation too, under For him.</p>
+      </div>
+
+      <div id="idea-together" class="ideaPane">
+        <h2>Ways to be close that aren't touch</h2>
+        <p class="lede">These work in any week of the month, and most of them work with children awake in the room.</p>
+        <button class="btn accent" style="margin:14px 0" onclick="rollTogether()">Give me one</button>
+        <div id="togOut"></div>
+        <h3>The whole list</h3>
+        <div id="togList"></div>
+      </div>
+
+      <div id="idea-dates" class="ideaPane" style="display:none">
+        <h2>Dates worth remembering</h2>
+        <div class="card" style="margin-top:14px">
+          <label class="fld">What it is</label>
+          <input type="text" id="dName" placeholder="Our anniversary">
+          <label class="fld">Date</label>
+          <input type="date" id="dDate">
+          <div class="row" style="margin-top:12px">
+            <div><label class="fld" style="margin-top:0">Repeats every year</label>
+              <select id="dYearly"><option value="1">Yes</option><option value="0">No</option></select></div>
+          </div>
+          <button class="btn accent" style="margin-top:14px" onclick="addDate()">Add</button>
+        </div>
+        <div id="dateList"></div>
+      </div>
+
+      <div id="idea-gifts" class="ideaPane" style="display:none">
+        <h2>Things he'd actually want</h2>
+        <p class="lede">Write it down when he says it, not when you need it.</p>
+        <div class="card" style="margin-top:14px">
+          <label class="fld">The thing</label>
+          <input type="text" id="gName" placeholder="the sefer he mentioned">
+          <label class="fld">For when</label>
+          <input type="text" id="gWhen" placeholder="his birthday">
+          <button class="btn accent" style="margin-top:12px" onclick="addGift()">Add</button>
+        </div>
+        <div id="giftList"></div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" id="v-settings">
+      <h3 style="margin-top:4px">This week</h3>
+      <div class="card">
+        <div class="tg">
+          <div><div class="lab">Touch-free prompts</div><div class="hint">Nothing in the rotation will ask you to touch him. Turn it on and off whenever you want. It isn't recorded anywhere.</div></div>
+          <div class="sw" id="sw-touch" onclick="tog('touchFree')"></div>
+        </div>
+        <div class="tg">
+          <div><div class="lab">Lighter load</div><div class="hint">One thing a day instead of two, and nothing in a row is counted. For Pesach, Tishrei, a new baby, a hard stretch.</div></div>
+          <div class="sw" id="sw-pause" onclick="tog('pause')"></div>
+        </div>
+      </div>
+
+      <h3>Shabbos and Yom Tov</h3>
+      <div class="card">
+        <div class="tg">
+          <div><div class="lab">Quiet from Friday to Motzei Shabbos</div><div class="hint">No reminders, nothing to check off, nothing broken when you come back.</div></div>
+          <div class="sw" id="sw-shab" onclick="tog('shabbos')"></div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <div><label class="fld" style="margin-top:0">Starts</label><input type="time" id="shStart" onchange="saveTimes()"></div>
+          <div><label class="fld" style="margin-top:0">Ends</label><input type="time" id="shEnd" onchange="saveTimes()"></div>
+        </div>
+        <div class="tg" style="margin-top:6px">
+          <div><div class="lab">Friday is a light day</div><div class="hint">Erev Shabbos gets the smallest things on the list, or nothing at all.</div></div>
+          <div class="sw" id="sw-fri" onclick="tog('lightFriday')"></div>
+        </div>
+      </div>
+
+      <h3>Reminders</h3>
+      <div class="card">
+        <p class="small" style="margin-bottom:10px">Reminders come from your browser. Previews are off, so the text on your lock screen says nothing about what this is.</p>
+        <div class="tg">
+          <div><div class="lab">Morning</div><div class="hint">Shows you the two.</div></div>
+          <div class="sw" id="sw-rm" onclick="tog('remMorning')"></div>
+        </div>
+        <div class="tg">
+          <div><div class="lab">Evening</div><div class="hint">Only if nothing's been checked off.</div></div>
+          <div class="sw" id="sw-re" onclick="tog('remEvening')"></div>
+        </div>
+        <div class="tg">
+          <div><div class="lab">A week before a date</div></div>
+          <div class="sw" id="sw-rd" onclick="tog('remDates')"></div>
+        </div>
+        <button class="btn ghost" style="margin-top:12px" onclick="askNotif()">Turn on notifications</button>
+      </div>
+
+      <h3>Privacy</h3>
+      <div class="card">
+        <div class="tg">
+          <div><div class="lab">PIN lock</div><div class="hint">Four digits, asked for every time the app opens.</div></div>
+          <div class="sw" id="sw-pin" onclick="togglePin()"></div>
+        </div>
+        <label class="fld">What it's called on your phone</label>
+        <input type="text" id="appName" placeholder="Happy Marriage" onchange="saveName()">
+        <div class="hint" style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45">Changes the name in the tab. To change the icon name on your home screen, delete the shortcut and add it again after you save this.</div>
+      </div>
+
+      <h3>Your own</h3>
+      <div class="card">
+        <p class="small" style="margin-bottom:10px">Things that fit your marriage. They go into the rotation with the rest.</p>
+        <label class="fld" style="margin-top:0">The thing</label>
+        <input type="text" id="cTitle" placeholder="Call him on his way home">
+        <label class="fld">A line about it</label>
+        <input type="text" id="cDesc" placeholder="Just to say hello, not to ask for anything">
+        <label class="fld">Which side</label>
+        <select id="cPool"><option value="him">For him</option><option value="me">For me</option></select>
+        <button class="btn accent" style="margin-top:14px" onclick="addCustom()">Add</button>
+        <div id="customList" style="margin-top:12px"></div>
+      </div>
+
+      <h3>Your information</h3>
+      <div class="card">
+        <p class="small">Everything here stays on this device. Nothing is sent anywhere and nobody else can see it. If you clear your browser data it's gone, so save a copy if you want one.</p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn ghost sm" style="flex:1" onclick="exportData()">Save a copy</button>
+          <button class="btn ghost sm" style="flex:1" onclick="wipe()">Erase everything</button>
+        </div>
+      </div>
+
+      <p class="small" style="text-align:center;margin:22px 0 10px">Koli Shema &middot; kolishema.org</p>
+      <p class="small" style="text-align:center;margin-bottom:10px">This app isn't therapy and it isn't a replacement for talking to somebody. If something at home isn't safe, nothing on this screen is the right tool for it.</p>
+    </section>
+
+  </main>
+
+  <nav>
+    <button class="on" id="n-today" onclick="goTo('today')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.4l2.6 2.6L16 9.6"/></svg>Today</button>
+    <button id="n-progress" onclick="goTo('progress')">
+      <svg viewBox="0 0 24 24"><path d="M5 19v-7M12 19V5M19 19v-4"/></svg>Progress</button>
+    <button id="n-toolkit" onclick="goTo('toolkit')">
+      <svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>Toolkit</button>
+    <button id="n-ideas" onclick="goTo('ideas')">
+      <svg viewBox="0 0 24 24"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.5.4.8 1 .8 1.6v.5h5.2v-.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z"/></svg>Ideas</button>
+    <button id="n-settings" onclick="goTo('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.1 14.5a1.5 1.5 0 0 0 .3 1.7l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.5 1.5 0 0 0-2.5 1.1V20a1.9 1.9 0 1 1-3.8 0v-.1a1.5 1.5 0 0 0-2.5-1.1l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.5 1.5 0 0 0-1.1-2.5H4a1.9 1.9 0 1 1 0-3.8h.1A1.5 1.5 0 0 0 5.2 7.2l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.5 1.5 0 0 0 2.5-1.1V3a1.9 1.9 0 1 1 3.8 0v.1a1.5 1.5 0 0 0 2.5 1.1l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.5 1.5 0 0 0 1.1 2.5H20a1.9 1.9 0 1 1 0 3.8h-.1a1.5 1.5 0 0 0-.8.3z"/></svg>Settings</button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<!-- ===== lock ===== -->
+<div id="lock">
+  <div style="font-size:15px;opacity:.75">Enter your PIN</div>
+  <div class="pins"><i id="p0"></i><i id="p1"></i><i id="p2"></i><i id="p3"></i></div>
+  <div class="pad" id="pad"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const HIM = [
+ {t:"Stop what you're doing when he talks",d:"When he says look at this, put the phone down and look. It's thirty seconds.",w:1},
+ {t:"Thank him for one thing, and say what it shows about him",d:"Not thanks for taking out the garbage. More like, you took it out before I asked, you notice when I'm finished.",w:1},
+ {t:"Ask one question about his day before he leaves",d:"Something you can ask about again later. Who he's seeing, what he's dreading.",w:1},
+ {t:"Say hello before anything else",d:"When he walks in, before the bills, before who needs what. Hello first.",w:1},
+ {t:"When he tells you good news, ask one more question about it",d:"The follow-up question is the part he'll remember.",w:1},
+ {t:"Let him tell you about something that's bothering him",d:"You don't have to fix it, and you don't have to agree with him about his boss either.",w:3},
+ {t:"Turn one complaint into a request",d:"Instead of you never, try what happened, how it landed, and what you want instead.",w:2},
+ {t:"Let one eye-roll go by",d:"The look, the tone, the comment under your breath. Once today, let it pass.",w:1},
+ {t:"Let him have one",d:"Something small, his way, no amendments.",w:1},
+ {t:"Have a line ready for when it gets hot",d:"Can we start that over. Pick one you'd actually say and keep it where you can find it.",w:1},
+ {t:"If he goes quiet, give him twenty minutes",d:"Shutting down is usually too much at once, not not caring. Pushing in makes it longer.",w:1},
+ {t:"Say one good thing about him in front of the children",d:"Out loud, where he isn't.",w:1},
+ {t:"Notice the thing nobody notices",d:"He filled the gas. He didn't say anything about supper being late.",w:1},
+ {t:"Ask what would actually help today",d:"Then do that one thing instead of guessing.",w:2},
+ {t:"Send him something that isn't about milk",d:"A thought, a thing you remembered, a thank you.",w:1},
+ {t:"Say thank you for the money part out loud",d:"Name what it paid for. Tuition, the dentist, this week's groceries.",w:1},
+ {t:"Leave his fifteen minutes alone",d:"Don't narrate it while it's happening and don't bring it up later.",w:1},
+ {t:"Don't redo something he did his own way",d:"Even if yours is better.",w:1},
+ {t:"Ask about something he wants",d:"A plan, a seder, something he's been talking about for a year, and listen without solving it.",w:2},
+ {t:"Do one small new thing together",d:"A different block to walk, a store you've never been in, or even just something at ten at night after they're down.",w:3},
+ {t:"Leave him a note",d:"In his siddur, in his coat pocket, on the table.",w:1},
+ {t:"Tell him something you're worried about",d:"Let him be the one you go to first.",w:2},
+ {t:"Ask his opinion, and then use it",d:"",w:1},
+ {t:"Drop one thing you've been holding, out loud",d:"I was annoyed about that. I'm past it.",w:1},
+ {t:"Compliment him on him, not on what he did for you",d:"",w:1},
+ {t:"Ask how the thing from last week went",d:"The one he told you about and you almost forgot.",w:1},
+ {t:"Make the thing he likes",d:"",w:2},
+ {t:"Let the first thing you say to him tonight not be a problem",d:"",w:1},
+ {t:"Sit down with him for ten minutes with nothing to decide",d:"",w:2},
+ {t:"Tell him one thing you'd pick again",d:"",w:1},
+ {t:"Take his side on something today",d:"Out loud, in front of somebody.",w:1},
+ {t:"Hold his hand for a minute",d:"",w:1,touch:true},
+ {t:"Hug him when he walks in, before anything gets said",d:"",w:1,touch:true},
+ {t:"Sit next to him instead of across from him",d:"",w:1,touch:true}
+];
+
+const RESPECT = [
+ {t:"Let him finish",d:"Even when you already know where it's going, and even when you're right about where it's going.",w:1},
+ {t:"Ask what he thinks before you've decided",d:"After is not asking.",w:1},
+ {t:"Argue with the idea, not with him",d:"I don't think that'll work lands somewhere different than that's ridiculous.",w:1},
+ {t:"Say he's right out loud when he's right",d:"",w:1},
+ {t:"Don't correct him in front of anybody",d:"Not in front of your mother, not in front of the children. If it has to be said it can be said later in the kitchen.",w:1},
+ {t:"Let him do it his way",d:"Even the way that takes longer.",w:1},
+ {t:"Don't finish his sentence, and don't finish his story",d:"",w:1},
+ {t:"Leave the old one where it is",d:"Whatever he got wrong two years ago stays in two years ago.",w:1},
+ {t:"Don't make him the joke",d:"Not with your friends, not with your sister, not with the kids in the room.",w:1},
+ {t:"Watch the tone more than the words",d:"He'll remember how you said it longer than what you said.",w:1},
+ {t:"Tell him one thing you think he's good at",d:"To him, not about him.",w:1},
+ {t:"Say something good about him where he can hear you saying it to somebody else",d:"",w:1},
+ {t:"Ask him to explain something he knows about",d:"And let it go longer than you were planning to.",w:2},
+ {t:"Ask what would make tomorrow easier for him, and do one of it",d:"The one thing a husband is most likely to call respect is a wife who actually helps.",w:2},
+ {t:"Take one thing off his list without being asked, and don't announce it",d:"",w:2},
+ {t:"Do the thing you said you'd do, when you said you'd do it",d:"",w:1},
+ {t:"Keep what he told you to yourself",d:"Even the small thing. Especially the small thing.",w:1},
+ {t:"Ask before you commit him to something",d:"",w:1},
+ {t:"Give him the information, not the instruction",d:"The appointment is at four, instead of you need to leave by three thirty.",w:1},
+ {t:"Ask once",d:"Asking again isn't a stronger version of asking, it's a different message. If it's been a week, say that it's been a week and say what you want to happen now.",w:1},
+ {t:"Say thank you for the thing you had to ask for",d:"It still counts that he did it.",w:1},
+ {t:"Let him decide about his own time",d:"",w:1},
+ {t:"Don't check his work",d:"",w:1},
+ {t:"When he's talking to the children, don't take over",d:"Even when you'd have said it differently. Especially then.",w:2}
+];
+
+const ME = [
+ {t:"Ask straight out instead of hinting",d:"Say the thing and say when. Will you do pickup Thursday. Hinting doesn't land, even when he's trying.",w:1},
+ {t:"Hand one thing off completely",d:"Not just the doing. The remembering and the planning too. If you're still remembering it, you still have it.",w:2},
+ {t:"Don't remind him about the thing you handed off",d:"The reminder is you taking it back.",w:1},
+ {t:"Write down everything you're keeping track of",d:"Ten minutes, no editing, no order. The list nobody else can see.",w:2},
+ {t:"Say out loud what you want to be thanked for",d:"Asking for it doesn't make it count less.",w:1},
+ {t:"Send one real sentence to a friend",d:"Not a carpool question.",w:1},
+ {t:"Ten minutes behind a closed door doing nothing useful",d:"",w:1},
+ {t:"Walk away before you answer",d:"Twenty minutes, then come back to it.",w:1},
+ {t:"Name one thing you're still carrying, and pick: say it, or put it down",d:"Resentment is a pile of small things nobody said. The pile is the problem, not any one of them.",w:2},
+ {t:"Don't wait to be in the mood",d:"For most people the wanting shows up after, not before. Not being in the mood isn't a verdict on anything.",w:1},
+ {t:"Take one thing off the brake",d:"The tiredness, the mess, the thing you haven't said. Pick one and move it. It's usually too much brake, not too little gas.",w:2},
+ {t:"Say no to one thing this week",d:"",w:1},
+ {t:"Ask for a specific hour off",d:"Sunday, four to five, I'm out. Not sometime.",w:1},
+ {t:"Write down one thing you did well that nobody saw",d:"",w:1},
+ {t:"Move for ten minutes",d:"A walk, the stairs, anything. It's for the stress, not for your weight.",w:1},
+ {t:"Ask him one question that needs him to actually show up",d:"",w:2},
+ {t:"Plan one thing you're looking forward to that isn't for anybody else",d:"",w:2},
+ {t:"Lower the bar on purpose today",d:"If there's a baby in the house, or there was one this year, the drop is normal and it's temporary and it isn't about your marriage.",w:1},
+ {t:"Pick three things for Erev Shabbos and say the rest out loud as dropped",d:"",w:1},
+ {t:"Five minutes Motzei Shabbos on what went right this week",d:"",w:1},
+ {t:"Ask somebody who isn't your husband for help",d:"Your mother, a sister, a neighbor, the girl down the block.",w:1},
+ {t:"Catch the hint before it comes out, and say the sentence instead",d:"",w:1},
+ {t:"Say what you do want, not what you don't",d:"",w:1},
+ {t:"Keep ten minutes that's only yours",d:"Not wife, not mother. You can't be close to somebody you've disappeared into.",w:1},
+ {t:"Eat something sitting down",d:"",w:1},
+ {t:"Put one thing on the calendar for yourself",d:"",w:1},
+ {t:"Decide one thing you're not going to care about today",d:"",w:1},
+ {t:"Let one thing be done badly",d:"",w:1},
+ {t:"Tell him what you need before you need it",d:"",w:1},
+ {t:"Stop apologizing for one thing you're not sorry about",d:"",w:1},
+ {t:"Notice one thing about this week that's actually fine",d:"",w:1},
+ {t:"Check what the quiet is",d:"If you're not saying things because you're tired, that's one thing. If it's because of how he'll take it, that's a different thing and this isn't the tool for it.",w:1}
+];
+
+const TOGETHER = [
+ "Write him a note and leave it where he'll find it later.",
+ "Call him in the middle of the day for no reason.",
+ "Bring home something small he likes. A nosh, a drink, the paper.",
+ "Buy flowers for Shabbos and say they're for the table.",
+ "Tell him one thing you appreciated this week, specifically.",
+ "Go for a walk, even around the block.",
+ "Ask him to tell you about something he's learning.",
+ "Look at pictures from before the children.",
+ "Sit at the table after the meal instead of getting up.",
+ "Ask him what he'd do with a free Sunday, and listen to the whole answer.",
+ "Tell him a story about your day that doesn't need anything from him.",
+ "Make a plan together for something a month out.",
+ "Smile at him across the room when he isn't expecting it.",
+ "Put on something he likes while you're cooking and tell him you did.",
+ "Say thank you for something he's been doing for years.",
+ "Ask him what he thinks about something that isn't the house or the kids.",
+ "Send him a picture of something from your day.",
+ "Tell him you're glad he's home.",
+ "Write down one thing from this week to tell him about Friday night.",
+ "Ask what he's worried about, and don't answer it."
+];
+
+const REPAIR = [
+ "Can we start that over.",
+ "That came out wrong.",
+ "I'm getting worked up. Give me twenty minutes.",
+ "Let me try to say that again.",
+ "You're right about that part.",
+ "I hear you. Keep going.",
+ "I'm sorry.",
+ "What do you need from me right now.",
+ "I'm on your side here.",
+ "This isn't worth it. Can we stop.",
+ "I don't want to fight about this.",
+ "Can we come back to this tomorrow."
+];
+
+const ASK_EX = [
+ ["The garbage is really full.","Will you take the garbage out tonight?"],
+ ["I'm so tired.","Can you do bedtime? I need to be finished at eight."],
+ ["Nobody ever helps me on Fridays.","Will you take the kids out Friday from three to four?"],
+ ["We never go anywhere.","Can we go out, just us, the Sunday after next?"],
+ ["It would be nice if somebody noticed.","I worked hard on this. Will you tell me what you think?"],
+ ["You're never home.","Can you be home by seven on Tuesdays?"],
+ ["I guess I'll just do it myself.","I need you to own this one. Not just the doing, the whole thing."],
+ ["Do whatever you want.","I want to stay home tonight."]
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = 'happyMarriage.v1';
+const DEF = {
+  mode:'mix', touchFree:false, pause:false, shabbos:true, lightFriday:true,
+  shStart:'18:00', shEnd:'20:30',
+  remMorning:false, remEvening:false, remDates:true,
+  appName:'Happy Marriage', pin:'',
+  done:{}, pair:{date:'',ids:[],mode:''}, seed:0,
+  custom:[], thanks:[], hand:[], dates:[], gifts:[]
+};
+let S = load();
+let view='today', tool='ask', ideaPane='respect', pinBuf='';
+
+function load(){
+  try{ const r=localStorage.getItem(KEY); if(r) return Object.assign({},DEF,JSON.parse(r)); }catch(e){}
+  return JSON.parse(JSON.stringify(DEF));
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('on'),1900); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function rngFrom(seed){ let x=seed||1; return ()=>{ x^=x<<13; x>>>=0; x^=x>>17; x^=x<<5; x>>>=0; return x/4294967296; }; }
+
+function pools(){
+  const cHim = S.custom.filter(c=>c.pool==='him').map(c=>({t:c.title,d:c.desc,w:1,custom:true}));
+  const cMe  = S.custom.filter(c=>c.pool==='me').map(c=>({t:c.title,d:c.desc,w:1,custom:true}));
+  return {
+    him: HIM.map((h,i)=>({...h,id:'h'+i,side:'him'}))
+         .concat(RESPECT.map((h,i)=>({...h,id:'r'+i,side:'him',respect:true})))
+         .concat(cHim.map((h,i)=>({...h,id:'ch'+i,side:'him'}))),
+    me:  ME.map((h,i)=>({...h,id:'m'+i,side:'me'})).concat(cMe.map((h,i)=>({...h,id:'cm'+i,side:'me'})))
+  };
+}
+function byId(id){ const p=pools(); return p.him.concat(p.me).find(x=>x.id===id); }
+
+function isShabbos(){
+  if(!S.shabbos) return false;
+  const n=new Date(), d=n.getDay(), mins=n.getHours()*60+n.getMinutes();
+  const [a,b]=S.shStart.split(':').map(Number), [c,e]=S.shEnd.split(':').map(Number);
+  if(d===5 && mins>=a*60+b) return true;
+  if(d===6 && mins< c*60+e) return true;
+  return false;
+}
+function isErevShabbos(){ return S.lightFriday && new Date().getDay()===5 && !isShabbos(); }
+
+/* ============================================================
+   PAIR
+   ============================================================ */
+function wanted(){
+  if(S.pause) return 1;
+  return 2;
+}
+function filterPool(list){
+  let l = list;
+  if(S.touchFree) l = l.filter(x=>!x.touch);
+  if(isErevShabbos() || S.pause) l = l.filter(x=>x.w===1);
+  return l.length? l : list;
+}
+function pickPair(force){
+  const d=today();
+  if(!force && S.pair.date===d && S.pair.mode===S.mode && S.pair.ids.length) return S.pair.ids;
+  const p=pools();
+  const rnd=rngFrom(hash(d+S.mode+S.seed));
+  const take=(arr,n)=>{ const a=filterPool(arr).slice(); const out=[]; while(out.length<n && a.length){ out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); } return out; };
+  let ids=[];
+  const n=wanted();
+  if(S.mode==='him') ids=take(p.him,n).map(x=>x.id);
+  else if(S.mode==='me') ids=take(p.me,n).map(x=>x.id);
+  else {
+    if(n===1) ids = (rnd()<0.5? take(p.him,1):take(p.me,1)).map(x=>x.id);
+    else ids = take(p.him,1).concat(take(p.me,1)).map(x=>x.id);
+  }
+  S.pair={date:d,ids,mode:S.mode}; save();
+  return ids;
+}
+function reroll(){ S.seed=(S.seed||0)+1; pickPair(true); renderToday(); toast('Different ones.'); }
+
+function toggleDone(id){
+  const d=today();
+  S.done[d]=S.done[d]||[];
+  const i=S.done[d].indexOf(id);
+  if(i>=0) S.done[d].splice(i,1); else S.done[d].push(id);
+  if(!S.done[d].length) delete S.done[d];
+  save(); renderToday(); renderProgress();
+}
+
+/* ============================================================
+   RENDER — TODAY
+   ============================================================ */
+function setMode(m){ S.mode=m; save(); pickPair(false); renderToday(); }
+
+function renderToday(){
+  ['mix','him','me'].forEach(m=>document.getElementById('m-'+m).classList.toggle('on',S.mode===m));
+
+  const nw=document.getElementById('todayNotice');
+  const wrap=document.getElementById('pairWrap');
+
+  if(isShabbos()){
+    nw.innerHTML='';
+    wrap.innerHTML='<div class="card" style="text-align:center;padding:34px 20px"><div style="font-size:16px;font-weight:600">Nothing here until Motzei Shabbos.</div><p class="small" style="margin-top:8px">Nothing breaks while you\'re away.</p></div>';
+    document.getElementById('upNext').innerHTML='';
+    document.getElementById('hSub').textContent='Good Shabbos.';
+    return;
+  }
+
+  let note='';
+  if(S.pause) note='Lighter load is on. One thing today, and nothing is being counted.';
+  else if(isErevShabbos()) note='It\'s Erev Shabbos, so today\'s are the smallest ones on the list. Skipping it is also fine.';
+  nw.innerHTML = note? '<div class="notice">'+esc(note)+'</div>':'';
+
+  const ids=pickPair(false), d=today(), done=S.done[d]||[];
+  wrap.innerHTML = ids.map(id=>{
+    const h=byId(id); if(!h) return '';
+    const on=done.includes(id);
+    return '<div class="habit'+(on?' done':'')+'" onclick="toggleDone(\''+id+'\')">'+
+      '<div class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7"/></svg></div>'+
+      '<div style="flex:1"><div class="t">'+esc(h.t)+'</div>'+
+      (h.d?'<div class="d">'+esc(h.d)+'</div>':'')+
+      '<span class="pill '+(h.side==='him'?'him':'me')+'">'+(h.side==='him'?'for him':'for you')+'</span>'+
+      '</div></div>';
+  }).join('');
+
+  const n=done.filter(x=>ids.includes(x)).length;
+  document.getElementById('hSub').textContent = n===0? 'Two small things.' : (n>=ids.length? 'Both done.' : n+' of '+ids.length+' done.');
+
+  // upcoming date
+  const up=nextDate();
+  document.getElementById('upNext').innerHTML = up? '<h3>Coming up</h3><div class="item"><div><div class="ttl">'+esc(up.name)+'</div><div class="sub">'+up.days+(up.days===1?' day':' days')+' from now</div></div></div>':'';
+}
+
+/* ============================================================
+   RENDER — PROGRESS
+   ============================================================ */
+function dayList(){ return Object.keys(S.done).filter(k=>S.done[k].length).sort(); }
+function runLength(){
+  const days=new Set(dayList());
+  let n=0; const d=new Date();
+  if(!days.has(today())) d.setDate(d.getDate()-1);
+  for(;;){
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(days.has(k)){ n++; d.setDate(d.getDate()-1);} else break;
+  }
+  return n;
+}
+function bestRun(){
+  const l=dayList(); if(!l.length) return 0;
+  let best=1,cur=1;
+  for(let i=1;i<l.length;i++){
+    const a=new Date(l[i-1]), b=new Date(l[i]);
+    if((b-a)/86400000===1){cur++;} else cur=1;
+    if(cur>best) best=cur;
+  }
+  return best;
+}
+function renderProgress(){
+  const l=dayList();
+  const acts=l.reduce((s,k)=>s+S.done[k].length,0);
+  const run=runLength();
+  document.getElementById('pRun').textContent=run;
+  document.getElementById('pRunLab').textContent = run===0? 'start whenever' : (run===1?'day in a row':'days in a row');
+  document.getElementById('pDays').textContent=l.length;
+  document.getElementById('pActs').textContent=acts;
+  document.getElementById('pBest').textContent=bestRun();
+
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+  const first=new Date(y,m,1), days=new Date(y,m+1,0).getDate();
+  document.getElementById('pMonthLab').textContent=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  let html='';
+  for(let i=0;i<first.getDay();i++) html+='<div></div>';
+  for(let i=1;i<=days;i++){
+    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');
+    const hit=S.done[k]&&S.done[k].length;
+    const fut=i>now.getDate();
+    html+='<div class="dot'+(hit?' hit':'')+(fut?' future':'')+'">'+i+'</div>';
+  }
+  document.getElementById('pDots').innerHTML=html;
+
+  let him=0,me=0;
+  l.forEach(k=>S.done[k].forEach(id=>{ const h=byId(id); if(h) (h.side==='him'?him++:me++); }));
+  document.getElementById('pSplit').textContent = (him+me)===0
+    ? 'Nothing yet.'
+    : him+' toward him, '+me+' toward you. Neither number is supposed to be bigger.';
+}
+
+/* ============================================================
+   TOOLKIT
+   ============================================================ */
+function setTool(t){
+  tool=t;
+  ['ask','repair','hand','thanks'].forEach(k=>{
+    document.getElementById('t-'+k).classList.toggle('on',k===t);
+    document.getElementById('tool-'+k).style.display = k===t?'block':'none';
+  });
+  if(t==='repair') renderRepair();
+  if(t==='hand') renderHand();
+  if(t==='thanks') renderThanks();
+  if(t==='ask') renderAskEx();
+}
+function renderAskEx(){
+  document.getElementById('askEx').innerHTML = ASK_EX.map(p=>
+    '<div class="item" style="display:block"><div class="sub" style="margin:0 0 6px">'+esc(p[0])+'</div><div class="ttl">'+esc(p[1])+'</div></div>'
+  ).join('');
+}
+function buildAsk(){
+  const w=document.getElementById('aWhat').value.trim();
+  const n=document.getElementById('aWhen').value.trim();
+  if(!w) return toast('Put in what you want.');
+  const s='Will you '+w+(n?' '+n:'')+'?';
+  document.getElementById('askOut').innerHTML='<div class="notice" style="margin:14px 0 0">'+esc(s)+'</div><button class="btn ghost sm" style="margin-top:10px;width:100%" onclick="copy(\''+esc(s).replace(/'/g,"\\'")+'\')">Copy it</button>';
+}
+function copy(t){ const d=document.createElement('textarea'); d.value=t.replace(/&#39;/g,"'").replace(/&amp;/g,'&').replace(/&quot;/g,'"'); document.body.appendChild(d); d.select(); try{document.execCommand('copy');}catch(e){} d.remove(); toast('Copied.'); }
+function renderRepair(){
+  document.getElementById('repairList').innerHTML = REPAIR.map(r=>
+    '<button class="tap" onclick="copy(\''+r.replace(/'/g,"\\'")+'\')">'+esc(r)+'</button>').join('');
+}
+function addHand(){
+  const t=document.getElementById('hTask').value.trim();
+  if(!t) return toast('Write the task.');
+  S.hand.unshift({id:uid(),task:t,notice:'me',plan:'me',do:'me'}); save();
+  document.getElementById('hTask').value=''; renderHand();
+}
+function cycleHand(id,part){
+  const h=S.hand.find(x=>x.id===id); if(!h) return;
+  h[part]= h[part]==='me'?'him':'me'; save(); renderHand();
+}
+function delHand(id){ S.hand=S.hand.filter(x=>x.id!==id); save(); renderHand(); }
+function renderHand(){
+  const el=document.getElementById('handList');
+  if(!S.hand.length){ el.innerHTML='<div class="empty">Nothing here yet. Start with one thing you\'d most like to stop thinking about.</div>'; return; }
+  const held=S.hand.reduce((s,h)=>s+(h.notice==='me'?1:0),0);
+  el.innerHTML='<p class="small" style="margin:16px 0 10px">You\'re still remembering '+held+' of '+S.hand.length+'.</p>'+
+   S.hand.map(h=>{
+    const b=(p,lab)=>'<button class="btn ghost sm" style="flex:1;padding:7px 4px;font-size:11.5px;'+(h[p]==='him'?'background:var(--coral-soft);border-color:transparent;color:#B8302A':'')+'" onclick="cycleHand(\''+h.id+'\',\''+p+'\')">'+lab+'<br><b style="font-weight:600">'+(h[p]==='him'?'him':'me')+'</b></button>';
+    return '<div class="card" style="padding:14px"><div style="display:flex;justify-content:space-between;gap:10px"><div class="ttl" style="font-weight:600;font-size:14px">'+esc(h.task)+'</div><button class="x" onclick="delHand(\''+h.id+'\')">&times;</button></div>'+
+      '<div class="row" style="margin-top:11px;gap:7px">'+b('notice','remembering')+b('plan','planning')+b('do','doing')+'</div></div>';
+  }).join('');
+}
+function addThanks(){
+  const w=document.getElementById('thWhat').value.trim();
+  const tr=document.getElementById('thTrait').value.trim();
+  if(!w) return toast('Write what he did.');
+  S.thanks.unshift({id:uid(),what:w,trait:tr,date:today()}); save();
+  document.getElementById('thWhat').value=''; document.getElementById('thTrait').value='';
+  renderThanks(); toast('Saved.');
+}
+function delThanks(id){ S.thanks=S.thanks.filter(x=>x.id!==id); save(); renderThanks(); }
+function randomThanks(){
+  if(!S.thanks.length) return toast('Nothing saved yet.');
+  const t=S.thanks[Math.floor(Math.random()*S.thanks.length)];
+  document.getElementById('thanksOut').innerHTML='<div class="notice">'+esc(t.what)+(t.trait?' &mdash; '+esc(t.trait):'')+'</div>';
+}
+function renderThanks(){
+  const el=document.getElementById('thanksList');
+  el.innerHTML = !S.thanks.length ? '<div class="empty">Once there are a few in here, read them on a bad week.</div>'
+   : '<h3>Saved</h3>'+S.thanks.map(t=>'<div class="item"><div><div class="ttl">'+esc(t.what)+'</div>'+(t.trait?'<div class="sub">'+esc(t.trait)+'</div>':'')+'</div><button class="x" onclick="delThanks(\''+t.id+'\')">&times;</button></div>').join('');
+}
+
+/* ============================================================
+   IDEAS
+   ============================================================ */
+function setIdea(p){
+  ideaPane=p;
+  ['respect','together','dates','gifts'].forEach(k=>{
+    document.getElementById('i-'+k).classList.toggle('on',k===p);
+    document.getElementById('idea-'+k).style.display = k===p?'block':'none';
+  });
+  if(p==='respect') renderRespect();
+  if(p==='together') renderTogether();
+  if(p==='dates') renderDates();
+  if(p==='gifts') renderGifts();
+}
+function rollRespect(){
+  const r=RESPECT[Math.floor(Math.random()*RESPECT.length)];
+  document.getElementById('resOut').innerHTML='<div class="notice"><b style="font-weight:600">'+esc(r.t)+'</b>'+(r.d?'<br>'+esc(r.d):'')+'</div>';
+}
+function renderRespect(){
+  document.getElementById('resList').innerHTML = RESPECT.map(r=>
+    '<div class="item" style="display:block"><div class="ttl">'+esc(r.t)+'</div>'+(r.d?'<div class="sub">'+esc(r.d)+'</div>':'')+'</div>').join('');
+}
+function rollTogether(){
+  const t=TOGETHER[Math.floor(Math.random()*TOGETHER.length)];
+  document.getElementById('togOut').innerHTML='<div class="notice">'+esc(t)+'</div>';
+}
+function renderTogether(){
+  document.getElementById('togList').innerHTML = TOGETHER.map(t=>'<div class="item"><div class="ttl" style="font-weight:400">'+esc(t)+'</div></div>').join('');
+}
+function addDate(){
+  const n=document.getElementById('dName').value.trim(), d=document.getElementById('dDate').value;
+  if(!n||!d) return toast('Needs a name and a date.');
+  S.dates.push({id:uid(),name:n,date:d,yearly:document.getElementById('dYearly').value==='1'}); save();
+  document.getElementById('dName').value=''; document.getElementById('dDate').value='';
+  renderDates(); renderToday();
+}
+function delDate(id){ S.dates=S.dates.filter(x=>x.id!==id); save(); renderDates(); renderToday(); }
+function daysTo(d,yearly){
+  const n=new Date(); n.setHours(0,0,0,0);
+  let t=new Date(d+'T00:00:00');
+  if(yearly){ t.setFullYear(n.getFullYear()); if(t<n) t.setFullYear(n.getFullYear()+1); }
+  return Math.round((t-n)/86400000);
+}
+function nextDate(){
+  const l=S.dates.map(d=>({...d,days:daysTo(d.date,d.yearly)})).filter(d=>d.days>=0&&d.days<=30).sort((a,b)=>a.days-b.days);
+  return l[0]||null;
+}
+function renderDates(){
+  const el=document.getElementById('dateList');
+  if(!S.dates.length){ el.innerHTML='<div class="empty">Nothing saved yet.</div>'; return; }
+  const l=S.dates.map(d=>({...d,days:daysTo(d.date,d.yearly)})).sort((a,b)=>a.days-b.days);
+  el.innerHTML='<h3>Saved</h3>'+l.map(d=>'<div class="item"><div><div class="ttl">'+esc(d.name)+'</div><div class="sub">'+(d.days===0?'today':d.days+(d.days===1?' day':' days')+' from now')+'</div></div><button class="x" onclick="delDate(\''+d.id+'\')">&times;</button></div>').join('');
+}
+function addGift(){
+  const n=document.getElementById('gName').value.trim();
+  if(!n) return toast('Write the thing.');
+  S.gifts.unshift({id:uid(),name:n,when:document.getElementById('gWhen').value.trim(),got:false}); save();
+  document.getElementById('gName').value=''; document.getElementById('gWhen').value='';
+  renderGifts();
+}
+function gotGift(id){ const g=S.gifts.find(x=>x.id===id); if(g){g.got=!g.got; save(); renderGifts();} }
+function delGift(id){ S.gifts=S.gifts.filter(x=>x.id!==id); save(); renderGifts(); }
+function renderGifts(){
+  const el=document.getElementById('giftList');
+  if(!S.gifts.length){ el.innerHTML='<div class="empty">Nothing yet.</div>'; return; }
+  el.innerHTML='<h3>Your list</h3>'+S.gifts.map(g=>'<div class="item"><div style="flex:1" onclick="gotGift(\''+g.id+'\')"><div class="ttl" style="'+(g.got?'opacity:.5;text-decoration:line-through':'')+'">'+esc(g.name)+'</div>'+(g.when?'<div class="sub">'+esc(g.when)+'</div>':'')+'</div><button class="x" onclick="delGift(\''+g.id+'\')">&times;</button></div>').join('');
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function tog(k){ S[k]=!S[k]; save(); renderSettings(); renderToday(); }
+function saveTimes(){ S.shStart=document.getElementById('shStart').value||'18:00'; S.shEnd=document.getElementById('shEnd').value||'20:30'; save(); renderToday(); }
+function saveName(){ S.appName=document.getElementById('appName').value.trim()||'Happy Marriage'; save(); document.title=S.appName; toast('Saved.'); }
+function addCustom(){
+  const t=document.getElementById('cTitle').value.trim();
+  if(!t) return toast('Write the thing.');
+  S.custom.push({id:uid(),title:t,desc:document.getElementById('cDesc').value.trim(),pool:document.getElementById('cPool').value});
+  save();
+  document.getElementById('cTitle').value=''; document.getElementById('cDesc').value='';
+  renderSettings(); toast('Added to the rotation.');
+}
+function delCustom(id){ S.custom=S.custom.filter(x=>x.id!==id); save(); renderSettings(); }
+function renderSettings(){
+  [['touch','touchFree'],['pause','pause'],['shab','shabbos'],['fri','lightFriday'],['rm','remMorning'],['re','remEvening'],['rd','remDates']]
+    .forEach(([el,k])=>document.getElementById('sw-'+el).classList.toggle('on',!!S[k]));
+  document.getElementById('sw-pin').classList.toggle('on',!!S.pin);
+  document.getElementById('shStart').value=S.shStart;
+  document.getElementById('shEnd').value=S.shEnd;
+  document.getElementById('appName').value=S.appName;
+  const el=document.getElementById('customList');
+  el.innerHTML = !S.custom.length? '' : S.custom.map(c=>'<div class="item"><div><div class="ttl">'+esc(c.title)+'</div><div class="sub">'+(c.pool==='him'?'for him':'for you')+'</div></div><button class="x" onclick="delCustom(\''+c.id+'\')">&times;</button></div>').join('');
+}
+function askNotif(){
+  if(!('Notification' in window)) return toast('This browser doesn\'t do notifications.');
+  Notification.requestPermission().then(p=>toast(p==='granted'?'On.':'Not allowed.'));
+}
+function exportData(){
+  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='happy-marriage-backup.json'; a.click();
+}
+function wipe(){
+  if(!confirm('This erases everything on this device and can\'t be undone.')) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  S=JSON.parse(JSON.stringify(DEF)); save(); renderAll(); toast('Erased.');
+}
+
+/* ============================================================
+   PIN
+   ============================================================ */
+function togglePin(){
+  if(S.pin){ S.pin=''; save(); renderSettings(); toast('PIN off.'); return; }
+  const a=prompt('Pick four digits.'); if(!a||!/^\d{4}$/.test(a)) return toast('Four digits.');
+  const b=prompt('Again.'); if(a!==b) return toast('Those didn\'t match.');
+  S.pin=a; save(); renderSettings(); toast('PIN on.');
+}
+function buildPad(){
+  const pad=document.getElementById('pad');
+  pad.innerHTML=['1','2','3','4','5','6','7','8','9','','0','←'].map(k=>k===''?'<div></div>':'<button onclick="pinKey(\''+k+'\')">'+k+'</button>').join('');
+}
+function pinKey(k){
+  if(k==='←') pinBuf=pinBuf.slice(0,-1); else if(pinBuf.length<4) pinBuf+=k;
+  for(let i=0;i<4;i++) document.getElementById('p'+i).classList.toggle('f',i<pinBuf.length);
+  if(pinBuf.length===4){
+    if(pinBuf===S.pin){ document.getElementById('lock').classList.remove('on'); pinBuf=''; }
+    else { pinBuf=''; setTimeout(()=>{for(let i=0;i<4;i++) document.getElementById('p'+i).classList.remove('f');},160); }
+  }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+const TITLES={today:'Today',progress:'Progress',toolkit:'Toolkit',ideas:'Ideas',settings:'Settings'};
+function goTo(v){
+  view=v;
+  ['today','progress','toolkit','ideas','settings'].forEach(k=>{
+    document.getElementById('v-'+k).classList.toggle('on',k===v);
+    document.getElementById('n-'+k).classList.toggle('on',k===v);
+  });
+  document.getElementById('hTitle').textContent=TITLES[v];
+  const sub={progress:'No catching up required.',toolkit:'Things to say, and how.',ideas:'For when you\'re out of them.',settings:'Yours to set.'};
+  document.getElementById('hSub').textContent = v==='today'? '' : sub[v];
+  document.querySelector('main').scrollTop=0;
+  if(v==='today') renderToday();
+  if(v==='progress') renderProgress();
+  if(v==='toolkit') setTool(tool);
+  if(v==='ideas') setIdea(ideaPane);
+  if(v==='settings') renderSettings();
+}
+
+function renderAll(){ renderToday(); renderProgress(); renderSettings(); setTool(tool); setIdea(ideaPane); }
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.title=S.appName;
+buildPad();
+if(S.pin) document.getElementById('lock').classList.add('on');
+renderAll();
+goTo('today');
+
+</script>
+</body>
+</html>
