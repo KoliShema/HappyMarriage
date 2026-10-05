@@ -12,6 +12,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231F1B56'/%3E%3Cpath d='M30 32 L44 32 L36 68 L22 68 Z' fill='%23F3A79E'/%3E%3Cpath d='M48 32 L62 32 L54 68 L40 68 Z' fill='%23EE6E64'/%3E%3Cpath d='M66 32 L80 32 L72 68 L58 68 Z' fill='%23EB4137'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <title>Happy Marriage</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Layout: one column, three tabs, full-screen detail pages pushed over a menu. */
@@ -139,6 +140,24 @@ nav button.on{color:var(--accent)}
 #lock .pad{display:grid;grid-template-columns:repeat(3,74px);gap:14px;margin-top:6px}
 #lock .pad button{height:64px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:23px}
 
+#quiz{position:fixed;inset:0;z-index:970;background:var(--navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;overflow-y:auto}
+#quiz[hidden]{display:none!important}
+#quiz .qcard{width:100%;max-width:400px}
+#quiz .st{font-size:12px;letter-spacing:.09em;text-transform:uppercase;opacity:.5;margin-bottom:14px}
+#quiz h2{font-size:24px;font-weight:600;color:#fff;line-height:1.3;text-wrap:balance}
+#quiz .qs{font-size:13.5px;opacity:.65;margin-top:8px;line-height:1.55}
+#quiz .qopt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:14px;padding:15px 17px;font-size:15px;line-height:1.35;margin-top:10px;transition:.15s}
+#quiz .qopt.on{background:var(--coral);border-color:var(--coral)}
+#quiz .qrow{display:flex;gap:10px;margin-top:22px}
+#quiz .qrow .btn{flex:1}
+#quiz .btn{background:#fff;color:#1F1B56}
+#quiz .btn:disabled{opacity:.35}
+#quiz .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25)}
+#quiz .skip{width:100%;text-align:center;font-size:13px;opacity:.55;color:#fff;padding:16px 0 0}
+#auth{position:fixed;inset:0;z-index:965;background:rgba(31,27,86,.5);display:flex;align-items:center;justify-content:center;padding:22px;overflow-y:auto}
+#auth[hidden]{display:none!important}
+#auth .sheetCard{background:var(--card);border-radius:20px;padding:24px;width:100%;max-width:380px;box-shadow:0 18px 50px rgba(31,27,86,.3)}
+#auth h2{font-size:19px;margin-bottom:4px}
 #sheet{position:fixed;inset:0;z-index:960;background:rgba(31,27,86,.5);display:flex;align-items:center;justify-content:center;padding:22px}
 #sheet .sheetCard{background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:380px;box-shadow:0 18px 50px rgba(31,27,86,.3)}
 #sheet h2{font-size:17px}
@@ -237,6 +256,15 @@ nav button.on{color:var(--accent)}
         </div>
       </div>
 
+      <h3>What fits you</h3>
+      <div class="card">
+        <p class="small" id="quizSum"></p>
+        <button class="btn ghost" style="margin-top:12px" onclick="startQuiz()">Answer the questions again</button>
+      </div>
+
+      <h3>Across your devices</h3>
+      <div class="card" id="syncCard"></div>
+
       <button class="more-btn card" style="margin-bottom:14px" onclick="toggleAdv()" id="advBtn">More settings</button>
 
       <div id="adv" hidden>
@@ -318,10 +346,40 @@ nav button.on{color:var(--accent)}
   </div>
 </div>
 
+<div id="quiz" hidden>
+  <div class="qcard">
+    <div class="st" id="qStep"></div>
+    <h2 id="qQ"></h2>
+    <div class="qs" id="qS"></div>
+    <div id="qA" style="margin-top:18px"></div>
+    <div class="qrow">
+      <button class="btn ghost" id="qBack" onclick="qBack()">Back</button>
+      <button class="btn" id="qNext" onclick="qNext()">Next</button>
+    </div>
+    <button class="skip" onclick="skipQuiz()">Skip this</button>
+  </div>
+</div>
+
 <div id="lock" hidden>
   <div style="font-size:15px;opacity:.75">Enter your PIN</div>
   <div class="pins"><i id="p0"></i><i id="p1"></i><i id="p2"></i><i id="p3"></i></div>
   <div class="pad" id="pad"></div>
+</div>
+
+<div id="auth" hidden>
+  <div class="sheetCard" role="dialog" aria-modal="true" aria-labelledby="auTitle">
+    <h2 id="auTitle">Sign in</h2>
+    <p class="small" id="auSub"></p>
+    <label class="fld" for="auEmail">Email</label>
+    <input type="email" id="auEmail" autocomplete="email" autocapitalize="off" spellcheck="false">
+    <label class="fld" for="auPass">Password</label>
+    <input type="password" id="auPass" autocomplete="current-password">
+    <button class="btn accent" id="auGo" style="margin-top:18px" onclick="authGo()">Sign in</button>
+    <button class="btn ghost" id="auGoogle" style="margin-top:10px" onclick="authGoogle()">Continue with Google</button>
+    <button class="more-btn" id="auSwap" style="padding:12px 6px 4px" onclick="swapAuth()">I need an account</button>
+    <button class="more-btn" id="auForgot" style="padding:2px 6px" onclick="authForgot()">Forgot your password</button>
+    <button class="more-btn" style="padding:8px 6px 0" onclick="closeAuth()">Not now</button>
+  </div>
 </div>
 
 <div id="sheet" hidden>
@@ -336,118 +394,118 @@ nav button.on{color:var(--accent)}
 </div>
 <script>
 const HIM = [
- {t:"Stop what you're doing when he talks",d:"When he says look at this, put the phone down and look. It's thirty seconds.",w:1},
- {t:"Thank him for one thing, and say what it shows about him",d:"Not thanks for taking out the garbage. More like, you took it out before I asked, you notice when I'm finished.",w:1},
- {t:"Ask one question about his day before he leaves",d:"Something you can ask about again later. Who he's seeing, what he's dreading.",w:1},
- {t:"Say hello before anything else",d:"When he walks in, before the bills, before who needs what. Hello first.",w:1},
- {t:"When he tells you good news, ask one more question about it",d:"The follow-up question is the part he'll remember.",w:1},
- {t:"Let him tell you about something that's bothering him",d:"You don't have to fix it, and you don't have to agree with him about his boss either.",w:3},
- {t:"Turn one complaint into a request",d:"Instead of you never, try what happened, how it landed, and what you want instead.",w:2},
- {t:"Let one eye-roll go by",d:"The look, the tone, the comment under your breath. Once today, let it pass.",w:1},
- {t:"Let him have one",d:"Something small, his way, no amendments.",w:1},
- {t:"Have a line ready for when it gets hot",d:"Can we start that over. Pick one you'd actually say and keep it where you can find it.",w:1},
- {t:"If he goes quiet, give him twenty minutes",d:"Shutting down is usually too much at once, not not caring. Pushing in makes it longer.",w:1},
- {t:"Say one good thing about him in front of the children",d:"Out loud, where he isn't.",w:1},
- {t:"Notice the thing nobody notices",d:"He filled the gas. He didn't say anything about supper being late.",w:1},
- {t:"Ask what would actually help today",d:"Then do that one thing instead of guessing.",w:2},
- {t:"Send him something that isn't about milk",d:"A thought, a thing you remembered, a thank you.",w:1},
- {t:"Say thank you for the money part out loud",d:"Name what it paid for. Tuition, the dentist, this week's groceries.",w:1},
- {t:"Leave his fifteen minutes alone",d:"Don't narrate it while it's happening and don't bring it up later.",w:1},
- {t:"Don't redo something he did his own way",d:"Even if yours is better.",w:1},
- {t:"Ask about something he wants",d:"A plan, a seder, something he's been talking about for a year, and listen without solving it.",w:2},
- {t:"Do one small new thing together",d:"A different block to walk, a store you've never been in, or even just something at ten at night after they're down.",w:3},
- {t:"Leave him a note",d:"In his siddur, in his coat pocket, on the table.",w:1},
- {t:"Tell him something you're worried about",d:"Let him be the one you go to first.",w:2},
- {t:"Ask his opinion, and then use it",d:"",w:1},
- {t:"Drop one thing you've been holding, out loud",d:"I was annoyed about that. I'm past it.",w:1},
- {t:"Compliment him on him, not on what he did for you",d:"",w:1},
- {t:"Ask how the thing from last week went",d:"The one he told you about and you almost forgot.",w:1},
- {t:"Make the thing he likes",d:"",w:2},
- {t:"Let the first thing you say to him tonight not be a problem",d:"",w:1},
- {t:"Sit down with him for ten minutes with nothing to decide",d:"",w:2},
- {t:"Tell him one thing you'd pick again",d:"",w:1},
- {t:"Take his side on something today",d:"Out loud, in front of somebody.",w:1},
- {t:"Hold his hand for a minute",d:"",w:1,touch:true},
- {t:"Hug him when he walks in, before anything gets said",d:"",w:1,touch:true},
- {t:"Sit next to him instead of across from him",d:"",w:1,touch:true}
+ {t:"Stop what you're doing when he talks",d:"When he starts telling you something, put the phone down and look at him. It takes about thirty seconds.",w:1,g:["talk"]},
+ {t:"Thank him for something, and say what it tells you about him",d:"He took the garbage out before you asked, which means he notices when you're finished.",w:1,g:["warm"]},
+ {t:"Ask him something about his day before he goes",d:"Something you can ask about again later. Who he's seeing, or what he's dreading.",w:1,g:["talk"]},
+ {t:"Say hello before anything else",d:"When he walks in, before the bills and before who needs what.",w:1,g:["warm", "evening"]},
+ {t:"When he tells you good news, ask one more question",d:"What happened next, or what he's going to do now.",w:1,g:["talk", "warm"]},
+ {t:"Let him tell you about something that's bothering him",d:"You don't have to fix it, and you don't have to agree with him about his boss either.",w:3,g:["talk"]},
+ {t:"Turn one complaint into a request",d:"You never is hard to answer. You can say what happened, how it landed, and what you want instead.",w:2,g:["heat", "load"]},
+ {t:"Let one eye-roll go by",d:"The look, the tone, or the comment under your breath. Once today, let it pass.",w:1,g:["heat"]},
+ {t:"Let him have one",d:"Something small, his way, and no amendments.",w:1,g:["heat"]},
+ {t:"Have a line ready for when it gets hot",d:"Something like can we start that over. Pick one you'd actually say and keep it where you'll find it.",w:1,g:["heat"]},
+ {t:"If he goes quiet, give him twenty minutes",d:"Shutting down is usually too much at once, and pushing in makes it last longer.",w:1,g:["heat"]},
+ {t:"Say one good thing about him in front of your children",d:"Out loud, when he isn't in the room.",w:1,g:["warm"]},
+ {t:"Notice the thing nobody notices",d:"He filled the gas. He didn't say anything about supper being late.",w:1,g:["warm"]},
+ {t:"Ask what would actually help today",d:"Then do that one thing instead of guessing.",w:2,g:["load", "warm"]},
+ {t:"Send him something that isn't about milk",d:"A thought, a thing you remembered, or even just a thank you.",w:1,g:["warm", "talk"]},
+ {t:"Say thank you for the money part out loud",d:"You can name what it paid for. Tuition, the dentist, or this week's groceries.",w:1,g:["warm"]},
+ {t:"Leave his fifteen minutes alone",d:"You don't have to narrate it while it's happening, and it doesn't have to come up later.",w:1,g:["heat"]},
+ {t:"Don't redo something he did his own way",d:"Even when yours is better.",w:1,g:["heat", "load"]},
+ {t:"Ask about something he wants",d:"A plan, a seder, or something he's been talking about for a year. You can listen to the whole thing without solving it.",w:2,g:["talk"]},
+ {t:"Do one small new thing together",d:"A different block to walk, a store you've never been into, or even just something at ten at night after they're down.",w:3,g:["talk", "quiet"]},
+ {t:"Leave him a note",d:"In his siddur, in his coat pocket, or on the table.",w:1,g:["warm"]},
+ {t:"Tell him something you're worried about",d:"You can let him be the one you go to first.",w:2,g:["talk"]},
+ {t:"Ask his opinion, and then use it",d:"",w:1,g:["talk"]},
+ {t:"Say out loud that you're past something",d:"Something you've been holding from a while back. You don't have to make a whole thing of it.",w:1,g:["heat"]},
+ {t:"Compliment him on who he is",d:"Something about him, apart from anything he did for you.",w:1,g:["warm"]},
+ {t:"Ask how the thing from last week went",d:"The one he told you about and you almost forgot.",w:1,g:["talk"]},
+ {t:"Make the thing he likes",d:"",w:2,g:["warm"]},
+ {t:"Let the first thing you say tonight not be a problem",d:"",w:1,g:["heat", "evening"]},
+ {t:"Sit down with him for ten minutes with nothing to decide",d:"",w:2,g:["talk", "quiet"]},
+ {t:"Tell him one thing you'd pick again",d:"",w:1,g:["warm"]},
+ {t:"Take his side on something today",d:"Out loud, in front of somebody.",w:1,g:["warm"]},
+ {t:"Hold his hand for a minute",d:"",w:1,touch:true,g:["warm"]},
+ {t:"Hug him when he walks in, before anything gets said",d:"",w:1,touch:true,g:["warm", "evening"]},
+ {t:"Sit next to him instead of across from him",d:"",w:1,touch:true,g:["warm"]}
 ];
 
 const RESPECT = [
- {t:"Let him finish",d:"Even when you already know where it's going, and even when you're right about where it's going.",w:1},
- {t:"Ask what he thinks before you've decided",d:"After is not asking.",w:1},
- {t:"Argue with the idea, not with him",d:"I don't think that'll work lands somewhere different than that's ridiculous.",w:1},
- {t:"Say he's right out loud when he's right",d:"",w:1},
- {t:"Don't correct him in front of anybody",d:"Not in front of your mother, not in front of the children. If it has to be said it can be said later in the kitchen.",w:1},
- {t:"Let him do it his way",d:"Even the way that takes longer.",w:1},
- {t:"Don't finish his sentence, and don't finish his story",d:"",w:1},
- {t:"Leave the old one where it is",d:"Whatever he got wrong two years ago stays in two years ago.",w:1},
- {t:"Don't make him the joke",d:"Not with your friends, not with your sister, not with the kids in the room.",w:1},
- {t:"Watch the tone more than the words",d:"He'll remember how you said it longer than what you said.",w:1},
- {t:"Tell him one thing you think he's good at",d:"To him, not about him.",w:1},
- {t:"Say something good about him where he can hear you saying it to somebody else",d:"",w:1},
- {t:"Ask him to explain something he knows about",d:"And let it go longer than you were planning to.",w:2},
- {t:"Ask what would make tomorrow easier for him, and do one of it",d:"The one thing a husband is most likely to call respect is a wife who actually helps.",w:2},
- {t:"Take one thing off his list without being asked, and don't announce it",d:"",w:2},
- {t:"Do the thing you said you'd do, when you said you'd do it",d:"",w:1},
- {t:"Keep what he told you to yourself",d:"Even the small thing. Especially the small thing.",w:1},
- {t:"Ask before you commit him to something",d:"",w:1},
- {t:"Give him the information, not the instruction",d:"The appointment is at four, instead of you need to leave by three thirty.",w:1},
- {t:"Ask once",d:"Asking again isn't a stronger version of asking, it's a different message. If it's been a week, say that it's been a week and say what you want to happen now.",w:1},
- {t:"Say thank you for the thing you had to ask for",d:"It still counts that he did it.",w:1},
- {t:"Let him decide about his own time",d:"",w:1},
- {t:"Don't check his work",d:"",w:1},
- {t:"When he's talking to the children, don't take over",d:"Even when you'd have said it differently. Especially then.",w:2}
+ {t:"Let him finish",d:"Even when you already know where it's going.",w:1,g:["talk"]},
+ {t:"Ask what he thinks before you've decided",d:"Once you've decided, it isn't really a question any more.",w:1,g:["talk", "load"]},
+ {t:"Keep the argument on the idea",d:"I don't think that'll work lands somewhere different from that's ridiculous.",w:1,g:["heat"]},
+ {t:"Say he's right out loud when he's right",d:"",w:1,g:["warm", "heat"]},
+ {t:"Nobody gets corrected in front of other people",d:"Not in front of your mother, and not in front of your children. If it has to be said, it can be said later in the kitchen.",w:1,g:["heat"]},
+ {t:"Let him do it his way",d:"Even the way that takes longer.",w:1,g:["load", "heat"]},
+ {t:"His sentence is his to finish",d:"His story too.",w:1,g:["talk"]},
+ {t:"Whatever he got wrong two years ago can stay there",d:"",w:1,g:["heat"]},
+ {t:"He shouldn't be the joke",d:"Not with your friends, not with your sister, and not with the kids in the room.",w:1,g:["heat"]},
+ {t:"Watch the tone more than the words",d:"He'll remember how you said it longer than what you said.",w:1,g:["heat"]},
+ {t:"Tell him one thing you think he's good at",d:"Said to him, in those words.",w:1,g:["warm"]},
+ {t:"Let him overhear you saying something good about him",d:"",w:1,g:["warm"]},
+ {t:"Ask him to explain something he knows about",d:"And let it go on longer than you were planning to.",w:2,g:["talk", "quiet"]},
+ {t:"Ask what would make tomorrow easier, and do one of it",d:"",w:2,g:["warm", "load"]},
+ {t:"Take one thing off his list without being asked",d:"And without announcing it.",w:2,g:["warm", "load"]},
+ {t:"Do the thing you said you'd do, when you said you'd do it",d:"",w:1,g:["load"]},
+ {t:"Keep what he told you to yourself",d:"Including the small thing.",w:1,g:["warm"]},
+ {t:"Ask before you commit him to something",d:"",w:1,g:["load"]},
+ {t:"Give him the information and let him work out the time",d:"The appointment's at four, rather than you need to leave by three thirty.",w:1,g:["load", "heat"]},
+ {t:"Ask once",d:"Asking again isn't a stronger version of asking. If it's been a week, you can say that it's been a week and say what you want to happen now.",w:1,g:["load", "heat"]},
+ {t:"Say thank you for the thing you had to ask for",d:"It still counts that he did it.",w:1,g:["warm", "load"]},
+ {t:"His own time is his to decide about",d:"",w:1,g:["heat"]},
+ {t:"Don't check his work",d:"",w:1,g:["heat", "load"]},
+ {t:"When he's talking to your children, let him talk",d:"Even when you'd have said it differently.",w:2,g:["heat"]}
 ];
 
 const ME = [
- {t:"Ask straight out instead of hinting",d:"Say the thing and say when. Will you do pickup Thursday. Hinting doesn't land, even when he's trying.",w:1},
- {t:"Hand one thing off completely",d:"Not just the doing. The remembering and the planning too. If you're still remembering it, you still have it.",w:2},
- {t:"Don't remind him about the thing you handed off",d:"The reminder is you taking it back.",w:1},
- {t:"Write down everything you're keeping track of",d:"Ten minutes, no editing, no order. The list nobody else can see.",w:2},
- {t:"Say out loud what you want to be thanked for",d:"Asking for it doesn't make it count less.",w:1},
- {t:"Send one real sentence to a friend",d:"Not a carpool question.",w:1},
- {t:"Ten minutes behind a closed door doing nothing useful",d:"",w:1},
- {t:"Walk away before you answer",d:"Twenty minutes, then come back to it.",w:1},
- {t:"Name one thing you're still carrying, and pick: say it, or put it down",d:"Resentment is a pile of small things nobody said. The pile is the problem, not any one of them.",w:2},
- {t:"Don't wait to be in the mood",d:"For most people the wanting shows up after, not before. Not being in the mood isn't a verdict on anything.",w:1},
- {t:"Take one thing off the brake",d:"The tiredness, the mess, the thing you haven't said. Pick one and move it. It's usually too much brake, not too little gas.",w:2},
- {t:"Say no to one thing this week",d:"",w:1},
- {t:"Ask for a specific hour off",d:"Sunday, four to five, I'm out. Not sometime.",w:1},
- {t:"Write down one thing you did well that nobody saw",d:"",w:1},
- {t:"Move for ten minutes",d:"A walk, the stairs, anything. It's for the stress, not for your weight.",w:1},
- {t:"Ask him one question that needs him to actually show up",d:"",w:2},
- {t:"Plan one thing you're looking forward to that isn't for anybody else",d:"",w:2},
- {t:"Lower the bar on purpose today",d:"If there's a baby in the house, or there was one this year, the drop is normal and it's temporary and it isn't about your marriage.",w:1},
- {t:"Pick three things for Erev Shabbos and say the rest out loud as dropped",d:"",w:1},
- {t:"Five minutes Motzei Shabbos on what went right this week",d:"",w:1},
- {t:"Ask somebody who isn't your husband for help",d:"Your mother, a sister, a neighbor, the girl down the block.",w:1},
- {t:"Catch the hint before it comes out, and say the sentence instead",d:"",w:1},
- {t:"Say what you do want, not what you don't",d:"",w:1},
- {t:"Keep ten minutes that's only yours",d:"Not wife, not mother. You can't be close to somebody you've disappeared into.",w:1},
- {t:"Eat something sitting down",d:"",w:1},
- {t:"Put one thing on the calendar for yourself",d:"",w:1},
- {t:"Decide one thing you're not going to care about today",d:"",w:1},
- {t:"Let one thing be done badly",d:"",w:1},
- {t:"Tell him what you need before you need it",d:"",w:1},
- {t:"Stop apologizing for one thing you're not sorry about",d:"",w:1},
- {t:"Notice one thing about this week that's actually fine",d:"",w:1}
+ {t:"Ask straight out instead of hinting",d:"Say the thing and say when. Will you do pickup on Thursday. Hinting doesn’t land, even when he’s trying to catch it.",w:1,g:["load"]},
+ {t:"Hand one thing off completely",d:"The remembering and the planning go with it. If you’re still remembering it, you still have it.",w:2,g:["load"]},
+ {t:"Don't remind him about the thing you handed off",d:"The reminder is you taking it back.",w:1,g:["load"]},
+ {t:"Write down everything you're keeping track of",d:"Ten minutes, no editing, and no order. The list nobody else can see.",w:2,g:["load", "quiet"]},
+ {t:"Say out loud what you want to be thanked for",d:"Asking for it doesn't make it count less.",w:1,g:["load", "warm"]},
+ {t:"Send one real sentence to a friend",d:"Something that isn't about carpool.",w:1,g:["self"]},
+ {t:"Ten minutes behind a closed door doing nothing useful",d:"",w:1,g:["self", "quiet"]},
+ {t:"Walk away before you answer",d:"Twenty minutes, and then come back to it.",w:1,g:["heat", "self"]},
+ {t:"Name one thing you're still carrying, and pick: say it, or put it down",d:"Resentment is a pile of small things nobody said, and the pile is what does the damage.",w:2,g:["heat", "self"]},
+ {t:"Don't wait to be in the mood",d:"For most people the wanting shows up once things are already going. Not being in the mood isn't a verdict on anything.",w:1,g:["self", "warm"]},
+ {t:"Move one thing that's in the way",d:"The tiredness, the mess, or the thing you haven't said. Usually it's that there's too much in the way.",w:2,g:["self"]},
+ {t:"Say no to one thing this week",d:"",w:1,g:["self", "load"]},
+ {t:"Ask for a specific hour off",d:"Sunday, four to five, I'm out. Sometime is too vague to happen.",w:1,g:["self", "load"]},
+ {t:"Write down one thing you did well that nobody saw",d:"",w:1,g:["self"]},
+ {t:"Move for ten minutes",d:"A walk, the stairs, or anything. It's for the stress and nothing else.",w:1,g:["self"]},
+ {t:"Ask him one question that needs him to actually show up",d:"",w:2,g:["talk"]},
+ {t:"Plan one thing you're looking forward to that isn't for anybody else",d:"",w:2,g:["self"]},
+ {t:"Lower the bar on purpose today",d:"If there's a baby in the house, or there was one this year, the drop is normal and it's temporary and it isn't about your marriage.",w:1,g:["self", "baby"]},
+ {t:"Pick three things for Erev Shabbos and say the rest out loud as dropped",d:"",w:1,g:["self", "load"]},
+ {t:"Five minutes Motzei Shabbos on what went right this week",d:"",w:1,g:["self", "talk"]},
+ {t:"Ask somebody who isn't your husband for help",d:"Your mother, a sister, a neighbor, or even just the girl down the block.",w:1,g:["self", "load"]},
+ {t:"Catch the hint before it comes out, and say the sentence instead",d:"",w:1,g:["load"]},
+ {t:"Say what you do want",d:"The thing you don't want is easier to say and harder for anybody to act on.",w:1,g:["load", "talk"]},
+ {t:"Keep ten minutes that's only yours",d:"Ten minutes where you're nobody's wife and nobody's mother. You can't be close to somebody you've disappeared into.",w:1,g:["self", "quiet"]},
+ {t:"Eat something sitting down",d:"",w:1,g:["self"]},
+ {t:"Put one thing on the calendar for yourself",d:"",w:1,g:["self"]},
+ {t:"Decide one thing you're not going to care about today",d:"",w:1,g:["self"]},
+ {t:"Let one thing be done badly",d:"",w:1,g:["self", "load"]},
+ {t:"Tell him what you need before you need it",d:"",w:1,g:["load", "talk"]},
+ {t:"Stop apologizing for one thing you're not sorry about",d:"",w:1,g:["self"]},
+ {t:"Notice one thing about this week that's actually fine",d:"",w:1,g:["self", "warm"]}
 ];
 
 const TOGETHER = [
  "Write him a note and leave it where he'll find it later.",
  "Call him in the middle of the day for no reason.",
- "Bring home something small he likes. A nosh, a drink, the paper.",
+ "Bring home something small he likes. A nosh, a drink, or the paper.",
  "Buy flowers for Shabbos and say they're for the table.",
- "Tell him one thing you appreciated this week, specifically.",
- "Go for a walk, even around the block.",
+ "Tell him one thing you appreciated this week, and say which thing.",
+ "Go for a walk, or even just around the block.",
  "Ask him to tell you about something he's learning.",
  "Look at pictures from before the children.",
- "Sit at the table after the meal instead of getting up.",
+ "Stay at the table after the meal instead of getting up.",
  "Ask him what he'd do with a free Sunday, and listen to the whole answer.",
  "Tell him a story about your day that doesn't need anything from him.",
  "Make a plan together for something a month out.",
  "Smile at him across the room when he isn't expecting it.",
- "Put on something he likes while you're cooking and tell him you did.",
+ "Put something on that he likes while you're cooking, and tell him you did.",
  "Say thank you for something he's been doing for years.",
  "Ask him what he thinks about something that isn't the house or the kids.",
  "Send him a picture of something from your day.",
@@ -492,7 +550,7 @@ const DEF = {
   shStart:'18:00', shEnd:'20:30',
   remMorning:false, remEvening:false, remDates:true,
   appName:'Happy Marriage', pin:'',
-  done:{}, pair:{date:'',ids:[],mode:''}, seed:0,
+  quiz:{}, done:{}, pair:{date:'',ids:[],mode:''}, seed:0,
   custom:[], thanks:[], hand:[], dates:[], gifts:[]
 };
 let S = load();
@@ -502,7 +560,7 @@ function load(){
   try{ const r=localStorage.getItem(KEY); if(r) return Object.assign({},DEF,JSON.parse(r)); }catch(e){}
   return JSON.parse(JSON.stringify(DEF));
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} if(typeof scheduleCloud==='function') scheduleCloud(); }
 
 /* ============================================================
    HELPERS
@@ -543,14 +601,23 @@ function isErevShabbos(){ return S.shabbos && S.lightFriday && new Date().getDay
 function filterPool(list){
   let l=list;
   if(S.touchFree) l=l.filter(x=>!x.touch);
+  if(typeof quizFilter==='function') l=quizFilter(l);
   if(isErevShabbos()||S.pause) l=l.filter(x=>x.w===1);
   return l.length?l:list;
+}
+/* two in three come from whatever she said was hardest */
+function leanPool(list,rnd){
+  const tags = (typeof focusTags==='function')?focusTags():[];
+  if(!tags.length) return list;
+  const hit = list.filter(function(x){ return (x.g||[]).some(function(g){ return tags.indexOf(g)>=0; }); });
+  if(!hit.length) return list;
+  return rnd()<0.67 ? hit : list;
 }
 function pickPair(force){
   const d=today();
   if(!force && S.pair.date===d && S.pair.mode===S.mode && S.pair.ids.length && S.pair.ids.every(byId)) return S.pair.ids;
   const p=pools(), rnd=rngFrom(hash(d+S.mode+S.seed));
-  const take=(arr,n)=>{ const a=filterPool(arr).slice(), out=[]; while(out.length<n&&a.length) out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); return out; };
+  const take=(arr,n)=>{ const a=leanPool(filterPool(arr),rnd).slice(), out=[]; while(out.length<n&&a.length) out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); return out; };
   const n=(S.pause||isErevShabbos())?1:2;
   let ids;
   if(S.mode==='him') ids=take(p.him,n).map(x=>x.id);
@@ -586,7 +653,7 @@ function renderToday(){
   const run=runLength(), total=dayList().length;
   document.getElementById('stRun').innerHTML = run>0
     ? esc(run+(run===1?' day in a row':' days in a row'))+'<span>'+esc(total+' '+(total===1?'day':'days')+' altogether')+'</span>'
-    : 'Start today<span>One is enough to begin</span>';
+    : 'Start today<span>One of them is enough</span>';
   const L='SMTWTFS'; let wk='';
   for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i);
     wk+='<i class="'+(S.done[key(d)]?'hit':'')+'">'+L[d.getDay()]+'</i>'; }
@@ -597,7 +664,7 @@ function renderToday(){
 
   if(isShabbos()){
     nw.innerHTML=''; dn.innerHTML=''; mr.hidden=true;
-    wrap.innerHTML='<div class="card" style="text-align:center;padding:36px 20px"><div style="font-size:17px;font-weight:600">Nothing here until Motzei Shabbos</div><p class="small" style="margin-top:8px">Nothing breaks while you are away.</p></div>';
+    wrap.innerHTML='<div class="card" style="text-align:center;padding:36px 20px"><div style="font-size:17px;font-weight:600">Nothing here until Motzei Shabbos</div><p class="small" style="margin-top:8px">Nothing breaks while you’re away.</p></div>';
     document.getElementById('upNext').innerHTML='';
     document.getElementById('hSub').textContent='Good Shabbos';
     return;
@@ -605,7 +672,7 @@ function renderToday(){
   mr.hidden=false;
 
   let note='';
-  if(S.pause) note='Lighter load is on, so it is one thing today.';
+  if(S.pause) note='Lighter load is on, so it’s one thing today.';
   else if(isErevShabbos()) note='Erev Shabbos. Just one today, and the smallest one on the list.';
   nw.innerHTML = note?'<div class="notice calm">'+esc(note)+'</div>':'';
 
@@ -622,7 +689,7 @@ function renderToday(){
   }).join('');
 
   const n=done.filter(function(x){return ids.indexOf(x)>=0;}).length;
-  dn.innerHTML = (n>0&&n>=ids.length) ? '<div class="notice">That is today. Nothing else on the list.</div>' : '';
+  dn.innerHTML = (n>0&&n>=ids.length) ? '<div class="notice">That’s it for today.</div>' : '';
   document.getElementById('hSub').textContent =
     n===0 ? (ids.length===1?'One small thing':'Two small things')
           : (n>=ids.length ? 'Done' : n+' of '+ids.length+' done');
@@ -636,14 +703,14 @@ function renderToday(){
    MORE — menu and pages
    ============================================================ */
 const PAGES=[
- {g:'When you need the words', k:'ask',      t:'How to ask for something', s:'Turn a hint into a sentence he can act on.'},
- {g:'When you need the words', k:'repair',   t:'What to say when it heats up', s:'Twelve lines that stop it getting worse.'},
- {g:'Things to try',           k:'respect',  t:'Ways to show respect', s:'Twenty-four small ones. They come up in your daily two as well.'},
- {g:'Things to try',           k:'together', t:'Ways to be close without touch', s:'Work any week of the month, and with children in the room.'},
- {g:'Yours to keep',           k:'hand',     t:'Who is carrying what', s:'The jobs you are still remembering for both of you.'},
- {g:'Yours to keep',           k:'notice',   t:'Things he did', s:'Keep a few. Read them on a bad week.'},
- {g:'Yours to keep',           k:'dates',    t:'Dates you do not want to miss', s:'Anniversaries, birthdays, the day you got engaged.'},
- {g:'Yours to keep',           k:'gifts',    t:'Things he would want', s:'Write it down when he says it, not when you need it.'}
+ {g:'When you need the words', k:'ask',      t:'How to ask for something', s:'Turn a hint into something he can act on.'},
+ {g:'When you need the words', k:'repair',   t:'What to say when it heats up', s:'Twelve lines for before it gets worse.'},
+ {g:'Things to try',           k:'respect',  t:'Ways to show respect', s:'Twenty-four small ones, and they come up in your daily two as well.'},
+ {g:'Things to try',           k:'together', t:'Ways to be close without touch', s:'These work any week of the month, and with children in the room.'},
+ {g:'Yours to keep',           k:'hand',     t:'Who’s carrying what', s:'The jobs you’re still remembering for both of you.'},
+ {g:'Yours to keep',           k:'notice',   t:'Things he did', s:'A few of these are worth having on a bad week.'},
+ {g:'Yours to keep',           k:'dates',    t:'Dates you don’t want to miss', s:'Anniversaries, birthdays, or the day you got engaged.'},
+ {g:'Yours to keep',           k:'gifts',    t:'Things he’d want', s:'Write it down in the week he mentions it.'}
 ];
 function renderMenu(){
   let html='', g=null;
@@ -671,7 +738,7 @@ function backToMenu(){
   document.getElementById('moreMenu').hidden=false;
   document.getElementById('morePage').hidden=true;
   document.getElementById('hTitle').textContent='More';
-  document.getElementById('hSub').textContent='Everything that is not today';
+  document.getElementById('hSub').textContent='Everything that isn’t today';
   document.querySelector('main').scrollTop=0;
 }
 function renderPage(){
@@ -688,7 +755,7 @@ function renderPage(){
 
 /* ---- ask ---- */
 function pgAsk(){
-  return '<p class="lede">Hinting does not land, even when he is trying. A request works when it says what, and when.</p>'+
+  return '<p class="lede">Hinting doesn’t land, even when he’s trying to catch it. A request works when it says what, and when.</p>'+
   '<div class="card" style="margin-top:14px">'+
   '<label class="fld" style="margin-top:0" for="aWhat">What you want him to do</label><input type="text" id="aWhat" placeholder="take the kids out">'+
   '<label class="fld" for="aWhen">When</label><input type="text" id="aWhen" placeholder="Friday, three to four">'+
@@ -716,13 +783,13 @@ function copy(t){
 
 /* ---- repair ---- */
 function pgRepair(){
-  return '<p class="lede">These work when they come early, before it has gone far. Pick one you would actually say.</p><div style="margin-top:16px">'+
+  return '<p class="lede">These work when they come early, before it’s gone far. Pick one you’d actually say.</p><div style="margin-top:16px">'+
    REPAIR.map(function(r){ return '<button class="tap" data-t="'+esc(r)+'" onclick="copy(this.dataset.t)"><span>'+esc(r)+'</span><span class="cp">copy</span></button>'; }).join('')+'</div>';
 }
 
 /* ---- respect / together ---- */
 function pgRespect(){
-  return '<p class="lede">Respect is not a man’s need and love a woman’s. When researchers asked people what respect in a marriage looks like, men and women described nearly the same thing. What does hold up is that its opposite, contempt, does more damage than anything else.</p>'+
+  return '<p class="lede">Respect isn’t a man’s need and love a woman’s. When researchers asked people what respect in a marriage looks like, men and women described nearly the same thing. What does hold up is that its opposite, contempt, does more damage than anything else.</p>'+
    '<button class="btn accent" style="margin:16px 0" onclick="rollRespect()">Give me one for today</button><div id="rollOut"></div>'+
    '<h3>All of them</h3>'+
    RESPECT.map(function(r){ return '<div class="item" style="display:block"><div class="ttl">'+esc(r.t)+'</div>'+(r.d?'<div class="sub">'+esc(r.d)+'</div>':'')+'</div>'; }).join('');
@@ -742,10 +809,10 @@ function pgHand(){
   const held=S.hand.filter(function(h){return h.notice==='me';}).length;
   let body;
   if(!S.hand.length){
-    body='<div class="empty">Nothing here yet.<br>Start with the one thing you would most like to stop thinking about.</div>'+
+    body='<div class="empty">Nothing here yet.<br>Start with the one thing you’d most like to stop thinking about.</div>'+
     '<div class="item ex" style="display:block"><div class="ttl">For example: Shabbos clothes for the boys</div><div class="sub">remembering &middot; planning &middot; doing</div></div>';
   } else {
-    body='<div class="notice calm">You are still remembering '+held+' of '+S.hand.length+'.</div>'+S.hand.map(function(h){
+    body='<div class="notice calm">You’re still remembering '+held+' of '+S.hand.length+'.</div>'+S.hand.map(function(h){
       function b(p,lab){ return '<button class="btn ghost sm" style="flex:1;padding:9px 4px;font-size:11.5px;line-height:1.4'+
         (h[p]==='him'?';background:var(--coral-soft);border-color:transparent;color:#B8302A':'')+
         '" onclick="cycleHand(\''+h.id+'\',\''+p+'\')">'+lab+'<br><b>'+(h[p]==='him'?'him':'me')+'</b></button>'; }
@@ -755,7 +822,7 @@ function pgHand(){
         '<div class="row" style="margin-top:12px;gap:7px">'+b('notice','remembering')+b('plan','planning')+b('do','doing')+'</div></div>';
     }).join('');
   }
-  return '<p class="lede">A job has three parts: remembering it, planning it, doing it. If you are still remembering it, you still have it. Tap a part to move it to him.</p>'+
+  return '<p class="lede">A job has three parts: remembering it, planning it, and doing it. If you’re still remembering it, you still have it. Tap a part to move it to him.</p>'+
    '<div class="card" style="margin-top:14px"><label class="fld" style="margin-top:0" for="hTask">The job</label>'+
    '<input type="text" id="hTask" placeholder="Shabbos clothes for the boys"><button class="btn accent" style="margin-top:12px" onclick="addHand()">Add</button></div>'+body;
 }
@@ -768,10 +835,10 @@ function delHand(id){ S.hand=S.hand.filter(function(x){return x.id!==id;}); save
 function pgNotice(){
   const list = S.thanks.length
    ? '<h3>Saved</h3>'+S.thanks.map(function(t){ return '<div class="item"><div><div class="ttl">'+esc(t.what)+'</div>'+(t.trait?'<div class="sub">'+esc(t.trait)+'</div>':'')+'</div><button class="x" onclick="delThanks(\''+t.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('')
-   : '<div class="empty">Nothing saved yet.</div><div class="item ex"><div><div class="ttl">For example: got up with the baby</div><div class="sub">he notices when I am finished</div></div></div>';
-  return '<p class="lede">What he did, and what it says about him. The second half is the part that lands.</p>'+
+   : '<div class="empty">Nothing saved yet.</div><div class="item ex"><div><div class="ttl">For example: got up with the baby</div><div class="sub">he notices when I’m finished</div></div></div>';
+  return '<p class="lede">What he did, and what it tells you about him.</p>'+
    '<div class="card" style="margin-top:14px"><label class="fld" style="margin-top:0" for="thWhat">What he did</label><input type="text" id="thWhat" placeholder="got up with the baby">'+
-   '<label class="fld" for="thTrait">What that says about him</label><input type="text" id="thTrait" placeholder="he notices when I am finished">'+
+   '<label class="fld" for="thTrait">What that says about him</label><input type="text" id="thTrait" placeholder="he notices when I’m finished">'+
    '<button class="btn accent" style="margin-top:14px" onclick="addThanks()">Save it</button></div>'+
    (S.thanks.length?'<button class="btn ghost" style="margin-bottom:14px" onclick="randomThanks()">Show me one</button><div id="rollOut"></div>':'')+list;
 }
@@ -827,7 +894,7 @@ function saveTimes(){ S.shStart=document.getElementById('shStart').value||'18:00
 function saveName(){ S.appName=document.getElementById('appName').value.trim()||'Happy Marriage'; save(); document.title=S.appName; toast('Saved.'); }
 function addCustom(){ const t=document.getElementById('cTitle').value.trim(); if(!t) return toast('Write the thing.');
   S.custom.push({id:uid(),title:t,desc:document.getElementById('cDesc').value.trim(),pool:document.getElementById('cPool').value}); save();
-  document.getElementById('cTitle').value=''; document.getElementById('cDesc').value=''; renderSettings(); toast('It is in the rotation now.'); }
+  document.getElementById('cTitle').value=''; document.getElementById('cDesc').value=''; renderSettings(); toast('It’s in the rotation now.'); }
 function delCustom(id){ S.custom=S.custom.filter(function(x){return x.id!==id;}); save(); renderSettings(); }
 function renderSettings(){
   ['touchFree','pause','shabbos','lightFriday','remMorning','remEvening','remDates'].forEach(function(k){
@@ -836,9 +903,18 @@ function renderSettings(){
   document.getElementById('shStart').value=S.shStart;
   document.getElementById('shEnd').value=S.shEnd;
   document.getElementById('appName').value=S.appName;
+  const qs=document.getElementById('quizSum');
+  if(qs){
+    const L={talk:'you don\'t talk much',load:'you\'re carrying the house',heat:'you snap at each other',warm:'it\'s gone flat',self:'you\'re running on empty'};
+    const picked=(S.quiz&&S.quiz.hard)||[];
+    qs.textContent = picked.length
+      ? 'Right now your two lean toward: '+picked.map(function(k){return L[k]||k;}).join(', and ')+'.'
+      : 'Four questions, about a minute. They change which things come up for you.';
+  }
+  if(typeof renderSync==='function') renderSync();
   document.getElementById('customList').innerHTML = S.custom.map(function(c){ return '<div class="item"><div><div class="ttl">'+esc(c.title)+'</div><div class="sub">'+(c.pool==='him'?'for him':'for you')+'</div></div><button class="x" onclick="delCustom(\''+c.id+'\')" aria-label="Remove">&times;</button></div>'; }).join('');
 }
-function askNotif(){ if(!('Notification' in window)) return toast('This browser does not do notifications.');
+function askNotif(){ if(!('Notification' in window)) return toast('This browser doesn’t do notifications.');
   Notification.requestPermission().then(function(p){ toast(p==='granted'?'On.':'Not allowed.'); }); }
 function exportData(){ const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='happy-marriage-backup.json'; a.click(); }
@@ -862,12 +938,12 @@ function togglePin(){
    'Save',function(){
      const a=document.getElementById('pinA').value, b=document.getElementById('pinB').value;
      if(!/^[0-9]{4}$/.test(a)) return toast('Four digits.');
-     if(a!==b) return toast('Those did not match.');
+     if(a!==b) return toast('Those didn’t match.');
      S.pin=a; save(); closeSheet(); toast('PIN on.');
    });
 }
 function wipe(){
-  openSheet('Erase everything','<p class="small">This clears every note, date and day you have checked off on this device. It cannot be undone.</p>',
+  openSheet('Erase everything','<p class="small">This clears every note, date and day you’ve checked off on this device. It can’t be undone.</p>',
    'Erase',function(){
      try{ localStorage.removeItem(KEY); }catch(e){}
      S=JSON.parse(JSON.stringify(DEF)); S.seen=true; save(); closeSheet(); page=null; renderAll(); goTo('today'); toast('Erased.');
@@ -885,13 +961,260 @@ function pinKey(k){
     else { pinBuf=''; setTimeout(function(){ for(let i=0;i<4;i++) document.getElementById('p'+i).classList.remove('f'); },160); }
   }
 }
-function closeWelcome(){ S.seen=true; save(); document.getElementById('welcome').hidden=true; }
+function closeWelcome(){ document.getElementById('welcome').hidden=true; if(!quizDone()) startQuiz(); else { S.seen=true; save(); } }
+
+
+
+/* ============================================================
+   THE QUESTIONS — four of them, and they only steer what comes up.
+   ============================================================ */
+const QUIZ=[
+ {k:'hard', multi:true, max:2,
+  q:"What's hardest right now?",
+  s:"Pick one or two. You can change it whenever.",
+  a:[["talk","We don't really talk any more"],
+     ["load","I'm carrying the whole house"],
+     ["heat","We snap at each other"],
+     ["warm","It's gone flat"],
+     ["self","I'm running on empty"]]},
+ {k:'house', multi:false,
+  q:"What's the house like?",
+  s:"",
+  a:[["new","Just the two of us so far"],
+     ["baby","There's a baby this year"],
+     ["small","Small children"],
+     ["big","Older children"],
+     ["out","They're mostly grown or gone"]]},
+ {k:'him', multi:false,
+  q:"When is he around?",
+  s:"",
+  a:[["supper","Home for supper most nights"],
+     ["late","Out all day, home late"],
+     ["night","Home, then out again to learn"],
+     ["vary","It changes week to week"]]},
+ {k:'time', multi:false,
+  q:"On a normal day, how much have you got?",
+  s:"Nothing here takes long, but some take longer than others.",
+  a:[["min","About a minute"],
+     ["five","Five minutes"],
+     ["more","More than that"]]}
+];
+
+let qStep=0, qPick={};
+
+function startQuiz(){
+  qStep=0; qPick=Object.assign({},S.quiz||{});
+  document.getElementById('quiz').hidden=false;
+  paintQuiz();
+}
+function closeQuiz(){ document.getElementById('quiz').hidden=true; }
+function paintQuiz(){
+  const Q=QUIZ[qStep];
+  const cur=qPick[Q.k];
+  const chosen = Q.multi ? (cur||[]) : (cur?[cur]:[]);
+  document.getElementById('qStep').textContent=(qStep+1)+' of '+QUIZ.length;
+  document.getElementById('qQ').textContent=Q.q;
+  document.getElementById('qS').textContent=Q.s;
+  document.getElementById('qS').hidden=!Q.s;
+  document.getElementById('qA').innerHTML=Q.a.map(function(o){
+    const on=chosen.indexOf(o[0])>=0;
+    return '<button class="qopt'+(on?' on':'')+'" onclick="qTap(\''+o[0]+'\')">'+esc(o[1])+'</button>';
+  }).join('');
+  document.getElementById('qBack').hidden = qStep===0;
+  document.getElementById('qNext').textContent = qStep===QUIZ.length-1 ? 'Done' : 'Next';
+  document.getElementById('qNext').disabled = !chosen.length;
+}
+function qTap(v){
+  const Q=QUIZ[qStep];
+  if(Q.multi){
+    const l=(qPick[Q.k]||[]).slice(), i=l.indexOf(v);
+    if(i>=0) l.splice(i,1);
+    else { l.push(v); if(l.length>Q.max) l.shift(); }
+    qPick[Q.k]=l;
+    paintQuiz();
+  } else {
+    qPick[Q.k]=v; paintQuiz();
+    setTimeout(qNext,180);
+  }
+}
+function qBack(){ if(qStep>0){ qStep--; paintQuiz(); } }
+function qNext(){
+  if(qStep<QUIZ.length-1){ qStep++; paintQuiz(); return; }
+  S.quiz=qPick; S.seen=true; S.seed=(S.seed||0)+1; save();
+  closeQuiz(); pickPair(true); renderAll(); goTo('today');
+  toast('Your two will fit better now.');
+}
+function skipQuiz(){ S.quiz=S.quiz||{}; S.seen=true; save(); closeQuiz(); renderAll(); }
+
+/* what the answers actually do */
+function focusTags(){ return (S.quiz&&S.quiz.hard)||[]; }
+function maxWeight(){
+  const t=S.quiz&&S.quiz.time;
+  if(t==='min') return 1;
+  if(t==='five') return 2;
+  return 3;
+}
+function quizFilter(list){
+  let l=list;
+  const house=S.quiz&&S.quiz.house, him=S.quiz&&S.quiz.him;
+  // the baby item only shows up if there is a baby
+  if(house!=='baby') l=l.filter(function(x){ return (x.g||[]).indexOf('baby')<0; });
+  // anything that needs a quiet house, when the house is not quiet
+  if(house==='small'||house==='baby') l=l.filter(function(x){ return (x.g||[]).indexOf('quiet')<0; });
+  // anything that depends on him walking in at a usual time
+  if(him==='vary') l=l.filter(function(x){ return (x.g||[]).indexOf('evening')<0; });
+  l=l.filter(function(x){ return (x.w||1)<=maxWeight(); });
+  return l.length?l:list;
+}
+function quizDone(){ return !!(S.quiz && S.quiz.hard && S.quiz.hard.length); }
+
+/* ============================================================
+   SYNC — optional. The app works with all of this blank.
+   Fill these two in from your Supabase project:
+     Settings -> API -> Project URL, and the anon / publishable key.
+   Never put the service_role key here. It is a public file.
+   ============================================================ */
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
+const SYNC_TABLE   = 'happy_marriage_data';
+
+let sb=null, user=null, authMode='in', cloudTimer=null, syncing=false;
+
+function syncConfigured(){ return !!(SUPABASE_URL && SUPABASE_KEY && window.supabase); }
+
+function initSync(){
+  if(!syncConfigured()) return;
+  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){ sb=null; return; }
+  sb.auth.getSession().then(function(r){
+    user = (r && r.data && r.data.session) ? r.data.session.user : null;
+    if(user) pullCloud();
+    renderSettings();
+  }).catch(function(){});
+  sb.auth.onAuthStateChange(function(ev,sess){
+    const was = user && user.id;
+    user = sess ? sess.user : null;
+    if(user && user.id!==was) pullCloud();
+    renderSettings();
+  });
+}
+
+/* merge: nothing is ever thrown away, on either side */
+function mergeIn(remote){
+  if(!remote || typeof remote!=='object') return;
+  // days: union, and union of the ids inside each day
+  const done = Object.assign({}, remote.done||{});
+  Object.keys(S.done||{}).forEach(function(k){
+    const a = done[k]||[], b = S.done[k]||[];
+    done[k] = a.concat(b.filter(function(x){ return a.indexOf(x)<0; }));
+  });
+  S.done = done;
+  // lists: keep both sides, matched on id
+  ['custom','thanks','hand','dates','gifts'].forEach(function(f){
+    const r = remote[f]||[], l = S[f]||[];
+    const ids = {}; l.forEach(function(x){ ids[x.id]=1; });
+    S[f] = l.concat(r.filter(function(x){ return !ids[x.id]; }));
+  });
+  if(typeof remote.seed==='number' && remote.seed>(S.seed||0)) S.seed=remote.seed;
+  S.seen = true;
+}
+
+function pullCloud(){
+  if(!sb||!user) return;
+  syncing=true; renderSettings();
+  sb.from(SYNC_TABLE).select('data').eq('user_id',user.id).maybeSingle()
+   .then(function(r){
+     if(r.error && r.error.code!=='PGRST116'){ syncing=false; renderSettings(); toast('Couldn’t reach the sync.'); return; }
+     if(r.data && r.data.data) mergeIn(r.data.data);
+     save(); renderAll(); if(page) renderPage();
+     syncing=false; pushCloud();
+   }).catch(function(){ syncing=false; renderSettings(); });
+}
+
+function pushCloud(){
+  if(!sb||!user) return;
+  const payload = Object.assign({}, S); delete payload.pin;
+  sb.from(SYNC_TABLE).upsert({user_id:user.id, data:payload, updated_at:new Date().toISOString()},{onConflict:'user_id'})
+   .then(function(){ renderSettings(); }).catch(function(){});
+}
+function scheduleCloud(){
+  if(!sb||!user) return;
+  clearTimeout(cloudTimer); cloudTimer=setTimeout(pushCloud,1500);
+}
+
+/* ---- auth sheet ---- */
+function openAuth(mode){
+  if(!syncConfigured()){ toast('Sync isn’t switched on yet.'); return; }
+  authMode = mode||'in';
+  document.getElementById('auth').hidden=false;
+  paintAuth();
+  const e=document.getElementById('auEmail'); if(e) e.focus();
+}
+function closeAuth(){ document.getElementById('auth').hidden=true; }
+function swapAuth(){ authMode = authMode==='in'?'up':'in'; paintAuth(); }
+function paintAuth(){
+  const up = authMode==='up';
+  document.getElementById('auTitle').textContent = up?'Make an account':'Sign in';
+  document.getElementById('auSub').textContent = up
+    ? 'So your streak and your lists follow you to another phone.'
+    : 'Welcome back.';
+  document.getElementById('auGo').textContent = up?'Create account':'Sign in';
+  document.getElementById('auSwap').textContent = up?'I already have one':'I need an account';
+  document.getElementById('auForgot').hidden = up;
+  document.getElementById('auPass').setAttribute('autocomplete', up?'new-password':'current-password');
+}
+function authGo(){
+  const em=document.getElementById('auEmail').value.trim();
+  const pw=document.getElementById('auPass').value;
+  if(!em || !pw) return toast('Email and password.');
+  if(authMode==='up' && pw.length<6) return toast('Six characters or more.');
+  const btn=document.getElementById('auGo'); btn.disabled=true;
+  const p = authMode==='up' ? sb.auth.signUp({email:em,password:pw}) : sb.auth.signInWithPassword({email:em,password:pw});
+  p.then(function(r){
+    btn.disabled=false;
+    if(r.error) return toast(r.error.message);
+    if(authMode==='up' && r.data && r.data.user && !r.data.session){ closeAuth(); toast('Check your email to finish.'); return; }
+    closeAuth(); toast('Signed in.');
+  }).catch(function(){ btn.disabled=false; toast('That didn’t go through.'); });
+}
+function authGoogle(){
+  if(!sb) return;
+  sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: location.origin+location.pathname}})
+   .then(function(r){ if(r.error) toast(r.error.message); })
+   .catch(function(){ toast('Google sign-in is not available.'); });
+}
+function authForgot(){
+  const em=document.getElementById('auEmail').value.trim();
+  if(!em) return toast('Put your email in first.');
+  sb.auth.resetPasswordForEmail(em,{redirectTo: location.origin+location.pathname})
+   .then(function(){ toast('Check your email.'); }).catch(function(){ toast('That didn’t go through.'); });
+}
+function signOut(){
+  if(!sb) return;
+  sb.auth.signOut().then(function(){ user=null; renderSettings(); toast('Signed out. Everything is still on this device.'); });
+}
+
+function renderSync(){
+  const el=document.getElementById('syncCard'); if(!el) return;
+  if(!syncConfigured()){
+    el.innerHTML='<p class="small">Syncing across devices isn’t switched on yet. Everything you do is saved on this device.</p>';
+    return;
+  }
+  if(!user){
+    el.innerHTML='<p class="small" style="margin-bottom:12px">Right now this is saved on this device only. Sign in and your days, lists and notes follow you to another phone.</p>'+
+      '<button class="btn accent" onclick="openAuth(\'in\')">Sign in or make an account</button>';
+    return;
+  }
+  el.innerHTML='<div class="tg" style="padding-top:0"><div><div class="lab">'+esc(user.email||'Signed in')+'</div>'+
+    '<div class="hint">'+(syncing?'Syncing…':'Everything here is backed up.')+'</div></div></div>'+
+    '<div class="row" style="margin-top:12px"><button class="btn ghost sm" onclick="pullCloud()">Sync now</button>'+
+    '<button class="btn ghost sm" onclick="signOut()">Sign out</button></div>';
+}
 
 /* ============================================================
    NAV
    ============================================================ */
 const TITLES={today:'Today',more:'More',settings:'Settings'};
-const SUBS={today:'',more:'Everything that is not today',settings:'Yours to set'};
+const SUBS={today:'',more:'Everything that isn’t today',settings:'Switches and times'};
 function goTo(v){
   view=v;
   ['today','more','settings'].forEach(function(k){
@@ -918,11 +1241,13 @@ renderAll();
 goTo('today');
 if(!S.seen) document.getElementById('welcome').hidden=false;
 if(S.pin) document.getElementById('lock').hidden=false;
+if(typeof initSync==='function') initSync();
 document.getElementById('shGo').addEventListener('click',function(){ if(sheetGo) sheetGo(); });
 document.getElementById('sheet').addEventListener('click',function(e){ if(e.target.id==='sheet') closeSheet(); });
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape') return;
-  if(!document.getElementById('sheet').hidden) closeSheet();
+  if(!document.getElementById('auth').hidden) closeAuth();
+  else if(!document.getElementById('sheet').hidden) closeSheet();
   else if(view==='more' && page) backToMenu();
 });
 </script>
