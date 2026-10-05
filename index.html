@@ -548,7 +548,7 @@ function filterPool(list){
 }
 function pickPair(force){
   const d=today();
-  if(!force && S.pair.date===d && S.pair.mode===S.mode && S.pair.ids.length) return S.pair.ids;
+  if(!force && S.pair.date===d && S.pair.mode===S.mode && S.pair.ids.length && S.pair.ids.every(byId)) return S.pair.ids;
   const p=pools(), rnd=rngFrom(hash(d+S.mode+S.seed));
   const take=(arr,n)=>{ const a=filterPool(arr).slice(), out=[]; while(out.length<n&&a.length) out.push(a.splice(Math.floor(rnd()*a.length),1)[0]); return out; };
   const n=(S.pause||isErevShabbos())?1:2;
