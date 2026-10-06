@@ -1266,5 +1266,186 @@ document.addEventListener('keydown',function(e){
   else if(view==='more' && page) backToMenu();
 });
 </script>
+<script>
+/* ── Spouse connect ───────────────────────────────────────────
+   Added as a self-contained block so none of the app above is
+   touched. Only three things ever cross: today's mood, what would
+   help, and wishes written for the other person. Her streak, her
+   notes and what she skipped have no policy in the database at all,
+   so they are unreachable rather than merely hidden.             */
+(function(){
+  var partnerId=null, myMood=null, myHelp=null, theirMood=null, wishes=[];
+  var MOODS=[['good','Good'],['ok','Alright'],['flat','Worn out'],['hard','Hard day']];
+  var HELPS=[['know','Just know'],['take','Take something off me'],['quiet','Some quiet'],['company','Company'],['dont','Don\u2019t ask about it']];
+  function label(list,v){ for(var i=0;i<list.length;i++) if(list[i][0]===v) return list[i][1]; return ''; }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function E(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function say(m){ try{ toast(m); }catch(e){} }
+  function me(){ try{ return (typeof user!=='undefined' && user) ? user : null; }catch(e){ return null; } }
+  function client(){ try{ return (typeof sb!=='undefined') ? sb : null; }catch(e){ return null; } }
+
+  /* ---- containers, appended rather than woven in ---- */
+  function mount(){
+    var set=document.getElementById('v-settings');
+    if(set && !document.getElementById('pairCard')){
+      var d=document.createElement('div'); d.id='pairCard'; d.className='card'; set.appendChild(d);
+    }
+    var tod=document.getElementById('v-today');
+    if(tod && !document.getElementById('theirMoodCard')){
+      var m=document.createElement('div'); m.id='theirMoodCard';
+      tod.insertBefore(m, tod.firstChild);
+    }
+  }
+
+  async function load(){
+    mount();
+    var c=client(), u=me();
+    if(!c || !u){ partnerId=null; paint(); return; }
+    try{ var r=await c.rpc('partner_id'); partnerId=r.data||null; }catch(e){ partnerId=null; }
+    if(partnerId){
+      try{
+        var a=await c.from('shared_state').select('mood,mood_help,mood_date').eq('user_id',u.id).maybeSingle();
+        if(a.data && a.data.mood_date===today()){ myMood=a.data.mood; myHelp=a.data.mood_help; }
+        else { myMood=null; myHelp=null; }
+        var b=await c.from('shared_state').select('mood,mood_help,mood_date').eq('user_id',partnerId).maybeSingle();
+        theirMood=(b.data && b.data.mood_date===today()) ? b.data : null;
+        var w=await c.from('wishes').select('*').eq('for_user',u.id).order('created_at',{ascending:false});
+        wishes=w.data||[];
+      }catch(e){ theirMood=null; wishes=[]; }
+    }
+    paint();
+  }
+
+  async function setMood(v){
+    var c=client(), u=me(); if(!c||!u||!partnerId) return;
+    myMood=v;
+    try{ await c.from('shared_state').upsert({user_id:u.id,mood:v,mood_help:myHelp,
+      mood_date:today(),updated_at:new Date().toISOString()},{onConflict:'user_id'});
+      say("He'll see it");
+    }catch(e){ say("Couldn't send that"); }
+    paint();
+  }
+  async function setHelp(v){
+    var c=client(), u=me(); if(!c||!u||!partnerId) return;
+    myHelp=(myHelp===v)?null:v;
+    try{ await c.from('shared_state').upsert({user_id:u.id,mood:myMood,mood_help:myHelp,
+      mood_date:today(),updated_at:new Date().toISOString()},{onConflict:'user_id'}); }catch(e){}
+    paint();
+  }
+  async function makeCode(){
+    var c=client(); if(!c) return;
+    try{ var r=await c.rpc('create_pair_code');
+      if(r.error) throw r.error;
+      document.getElementById('pairCard').innerHTML =
+        '<p class="muted">Give him this code. It works for the next half hour.</p>'+
+        '<div class="paircode">'+E(r.data)+'</div>'+
+        '<button class="btn" id="pDone">Done</button>';
+      var bd=document.getElementById('pDone'); if(bd) bd.onclick=paint;
+    }catch(e){ say(e.message||"Couldn't make a code"); }
+  }
+  async function useCode(){
+    var c=client(); if(!c) return;
+    var el=document.getElementById('pCodeIn');
+    var v=(el?el.value:'').trim().toUpperCase();
+    if(v.length!==6){ say("His code is 6 characters"); return; }
+    try{ var r=await c.rpc('redeem_pair_code',{c:v});
+      if(r.error) throw r.error;
+      say("Connected"); await load();
+    }catch(e){ say(e.message||"That code didn't work"); }
+  }
+  async function unpair(){
+    if(!window.confirm("Disconnect?\n\nHe won't be told. Neither of you will see the other's day any more.")) return;
+    var c=client(); try{ await c.rpc('unpair'); }catch(e){}
+    partnerId=null; theirMood=null; wishes=[]; paint(); say("Disconnected");
+  }
+  async function addWish(){
+    var c=client(), u=me();
+    var el=document.getElementById('pWishIn');
+    var t=(el?el.value:'').trim();
+    if(!t){ say("Type it first"); return; }
+    if(!partnerId){ say("Connect first"); return; }
+    try{ await c.from('wishes').insert({from_user:u.id,for_user:partnerId,body:t});
+      el.value=''; say("Sent to him");
+    }catch(e){ say("Couldn't send that"); }
+  }
+  async function tick(id,done){
+    var c=client(); try{ await c.from('wishes').update({done:!done}).eq('id',id); }catch(e){}
+    await load();
+  }
+
+  function paint(){
+    mount();
+    var box=document.getElementById('pairCard');
+    var mc=document.getElementById('theirMoodCard');
+    if(mc){
+      mc.innerHTML = (partnerId && theirMood && theirMood.mood)
+        ? '<div class="moodcard"><div class="mc-t">His day, today</div>'+
+          '<div class="mc-m">'+E(label(MOODS,theirMood.mood))+'</div>'+
+          (theirMood.mood_help ? '<div class="mc-h">What would help: '+E(label(HELPS,theirMood.mood_help))+'</div>' : '')+
+          '</div>'
+        : '';
+    }
+    if(!box) return;
+    if(!me()){ box.innerHTML='<p class="muted">Sign in to connect with your husband.</p>'; return; }
+    if(!partnerId){
+      box.innerHTML =
+        '<p class="muted">If your husband uses Happy Wife, you can connect. He sees how your day is going and anything you ask for \u2014 nothing else. Not your streak, not your notes, not what you skipped.</p>'+
+        '<button class="btn" id="pMake">Get a code to give him</button>'+
+        '<input id="pCodeIn" class="paircode-in" maxlength="6" placeholder="OR HIS CODE">'+
+        '<button class="btn ghost" id="pUse">Connect</button>';
+      var bm=document.getElementById('pMake'); if(bm) bm.onclick=makeCode;
+      var bu=document.getElementById('pUse');  if(bu) bu.onclick=useCode;
+      return;
+    }
+    var h='<p class="muted">Connected. Tell him how today is going.</p><div class="moodrow">';
+    for(var i=0;i<MOODS.length;i++)
+      h+='<button data-m="'+MOODS[i][0]+'" class="'+(myMood===MOODS[i][0]?'on':'')+'">'+E(MOODS[i][1])+'</button>';
+    h+='</div>';
+    if(myMood){
+      h+='<p class="muted">What would actually help?</p><div class="moodrow">';
+      for(var j=0;j<HELPS.length;j++)
+        h+='<button data-h="'+HELPS[j][0]+'" class="'+(myHelp===HELPS[j][0]?'on':'')+'">'+E(HELPS[j][1])+'</button>';
+      h+='</div>';
+    }
+    h+='<p class="muted" style="margin-top:10px">What he asked for</p>';
+    if(wishes.length){
+      for(var k=0;k<wishes.length;k++)
+        h+='<div class="wishrow'+(wishes[k].done?' done':'')+'"><button data-w="'+wishes[k].id+'" data-d="'+(wishes[k].done?1:0)+'" class="wtick">'+(wishes[k].done?'\u2713':'')+'</button><span>'+E(wishes[k].body)+'</span></div>';
+    } else { h+='<p class="muted">Nothing yet.</p>'; }
+    h+='<input id="pWishIn" class="paircode-in" style="letter-spacing:normal;text-transform:none;text-align:left" placeholder="Ask him for something">'+
+       '<button class="btn ghost" id="pWishAdd">Send</button>'+
+       '<button class="btn ghost" id="pUnpair">Disconnect</button>'+
+       '<p class="muted">Today only. Nothing is kept, and there is no history either of you can scroll back through.</p>';
+    box.innerHTML=h;
+    if(box.querySelectorAll) box.querySelectorAll('[data-m]').forEach(function(b){ b.onclick=function(){ setMood(b.getAttribute('data-m')); }; });
+    if(box.querySelectorAll) box.querySelectorAll('[data-h]').forEach(function(b){ b.onclick=function(){ setHelp(b.getAttribute('data-h')); }; });
+    if(box.querySelectorAll) box.querySelectorAll('[data-w]').forEach(function(b){ b.onclick=function(){ tick(b.getAttribute('data-w'), b.getAttribute('data-d')==='1'); }; });
+    var wa=document.getElementById('pWishAdd'); if(wa) wa.onclick=addWish;
+    var up=document.getElementById('pUnpair'); if(up) up.onclick=unpair;
+  }
+
+  var css=document.createElement('style');
+  css.textContent =
+    '#pairCard .paircode{font-size:30px;font-weight:800;letter-spacing:.18em;text-align:center;padding:14px;margin:10px 0;background:rgba(0,0,0,.05);border-radius:12px}'+
+    '#pairCard .paircode-in{width:100%;padding:12px 14px;border-radius:11px;border:1.5px solid rgba(0,0,0,.18);font:inherit;font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-align:center;margin:8px 0}'+
+    '#pairCard .moodrow{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}'+
+    '#pairCard .moodrow button{flex:1;min-width:74px;min-height:46px;border-radius:11px;border:1.5px solid rgba(0,0,0,.15);background:transparent;font:inherit;font-size:13px;font-weight:600;cursor:pointer}'+
+    '#pairCard .moodrow button.on{border-color:#D4402F;color:#D4402F}'+
+    '#pairCard .wishrow{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.08)}'+
+    '#pairCard .wishrow.done span{text-decoration:line-through;opacity:.5}'+
+    '#pairCard .wtick{width:26px;height:26px;min-width:26px;border-radius:50%;border:2px solid #D4402F;background:transparent;cursor:pointer;color:#D4402F;font-size:14px;line-height:1}'+
+    '#theirMoodCard .moodcard{background:#1F1B56;color:#fff;border-radius:18px;padding:18px;margin-bottom:14px}'+
+    '#theirMoodCard .mc-t{font-size:11px;letter-spacing:.09em;text-transform:uppercase;opacity:.65}'+
+    '#theirMoodCard .mc-m{font-size:19px;font-weight:700;margin-top:5px}'+
+    '#theirMoodCard .mc-h{font-size:14px;opacity:.85;margin-top:7px;line-height:1.5}';
+  document.head.appendChild(css);
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', load);
+  else load();
+  setTimeout(load, 1200);
+  try{ if(typeof sb!=='undefined' && sb && sb.auth) sb.auth.onAuthStateChange(function(){ setTimeout(load,300); }); }catch(e){}
+})();
+</script>
 </body>
 </html>
