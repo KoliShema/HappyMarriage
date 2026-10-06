@@ -1089,8 +1089,8 @@ function quizDone(){ return !!(S.quiz && S.quiz.hard && S.quiz.hard.length); }
      Settings -> API -> Project URL, and the anon / publishable key.
    Never put the service_role key here. It is a public file.
    ============================================================ */
-const SUPABASE_URL = '';
-const SUPABASE_KEY = '';
+const SUPABASE_URL = 'https://ujpwrinutaweqcxgjvvr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqcHdyaW51dGF3ZXFjeGdqdnZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTQ5NTIsImV4cCI6MjEwNjUzMDk1Mn0.bGyogL1nmt7Qi553gPkCZ3CBXNT6gujAdpa85G2xoEc';
 const SYNC_TABLE   = 'happy_marriage_data';
 
 let sb=null, user=null, authMode='in', cloudTimer=null, syncing=false;
@@ -1099,7 +1099,7 @@ function syncConfigured(){ return !!(SUPABASE_URL && SUPABASE_KEY && window.supa
 
 function initSync(){
   if(!syncConfigured()) return;
-  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){ sb=null; return; }
+  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage, storageKey: 'kolishema-auth', flowType: 'pkce' } }); }catch(e){ sb=null; return; }
   sb.auth.getSession().then(function(r){
     user = (r && r.data && r.data.session) ? r.data.session.user : null;
     if(user) pullCloud();
