@@ -1447,5 +1447,11 @@ document.addEventListener('keydown',function(e){
   try{ if(typeof sb!=='undefined' && sb && sb.auth) sb.auth.onAuthStateChange(function(){ setTimeout(load,300); }); }catch(e){}
 })();
 </script>
+<style>
+/* Touch targets: nothing tappable should be under 44px on a phone.
+   Appended rather than edited into the rules above, so nothing else moves. */
+.seg button{min-height:44px}
+.btn.sm{min-height:44px}
+</style>
 </body>
 </html>
