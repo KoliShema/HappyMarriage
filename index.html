@@ -1099,7 +1099,7 @@ function syncConfigured(){ return !!(SUPABASE_URL && SUPABASE_KEY && window.supa
 
 function initSync(){
   if(!syncConfigured()) return;
-  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage, storageKey: 'kolishema-auth', flowType: 'pkce' } }); }catch(e){ sb=null; return; }
+  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage, storageKey: 'kolishema-auth', flowType: 'implicit' } }); }catch(e){ sb=null; return; }
   sb.auth.getSession().then(function(r){
     user = (r && r.data && r.data.session) ? r.data.session.user : null;
     if(user) pullCloud();
