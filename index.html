@@ -1974,5 +1974,19 @@ document.addEventListener('keydown',function(e){
 .reap-note{color:#8A85AD;font-size:13px;line-height:1.5;margin:0 0 16px}
 .reap-later{margin-top:6px}
 </style>
+<style>
+/* The quiz was white text on a background of var(--navy) — and in dark mode
+   --navy is redefined to #F4F3FA, nearly white, because it doubles as the
+   text colour. So on any phone in dark mode the quiz was white on white and
+   unreadable. It is the only screen that used a flipping variable as a dark
+   background; the overlays added later use a fixed colour.
+   Pinned to the real navy, in both schemes. */
+#quiz{ background:#1F1B56 !important; color:#fff !important; }
+#quiz h1, #quiz h2, #quiz h3, #quiz p, #quiz label, #quiz span{ color:#fff; }
+#quiz .muted, #quiz .eyebrow{ color:rgba(255,255,255,.62); }
+#quiz button{ color:#fff; }
+#quiz .q-opt, #quiz .opt{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.22); color:#fff; }
+#quiz .q-opt.on, #quiz .opt.on{ background:#EB4137; border-color:#EB4137; }
+</style>
 </body>
 </html>
