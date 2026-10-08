@@ -720,7 +720,6 @@ function renderToday(){
 const PAGES=[
  {g:'When you need the words', k:'ask',      t:'How to ask for something', s:'Turn a hint into something he can act on.'},
  {g:'When you need the words', k:'repair',   t:'What to say when it heats up', s:'Twelve lines for before it gets worse.'},
- {g:'Things to try',           k:'respect',  t:'Ways to show respect', s:'Twenty-four small ones, and they come up in your daily two as well.'},
  {g:'Things to try',           k:'together', t:'Ways to be close without touch', s:'These work any week of the month, and with children in the room.'},
  {g:'Yours to keep',           k:'hand',     t:'Who’s carrying what', s:'The jobs you’re still remembering for both of you.'},
  {g:'Yours to keep',           k:'notice',   t:'Things he did', s:'A few of these are worth having on a bad week.'},
@@ -1736,5 +1735,20 @@ document.addEventListener('keydown',function(e){
 <style>
 .why-no-google{color:#6F6A94;font-size:13.5px;line-height:1.55;margin:0 0 12px;text-align:center}
 </style>
+<script>
+/* The weekday strip is gone.
+   It showed the last seven days ticked or not, which is a streak in all but
+   name. The engagement research is blunt: continuity built on extrinsic
+   hooks produces engagement with the app rather than with the behaviour it
+   is meant to encourage. The same reasoning removed the invented weekly
+   scoreboard from Happy Children.
+   Hidden rather than deleted, so nothing that writes to it has to change. */
+(function(){
+  function hide(){ var w = document.getElementById('stWeek'); if (w) w.style.display = 'none'; }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hide);
+  else hide();
+  setTimeout(hide, 500); setTimeout(hide, 1500);
+})();
+</script>
 </body>
 </html>
