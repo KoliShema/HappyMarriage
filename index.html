@@ -1562,5 +1562,111 @@ document.addEventListener('keydown',function(e){
   setTimeout(boot, 1500);
 })();
 </script>
+<script>
+/* Finishing a password reset, and saying when Google will not work.
+   Her app already had email, password, Google, sign-up and a forgot link —
+   all of it reachable. What was missing was the other end of the reset:
+   the email sends, the link signs her in, and nothing ever asked for a new
+   password, so the link looked broken.
+
+   The in-app browser note matters more here. Google cannot complete a
+   sign-in inside WhatsApp's browser, nor in an iOS home-screen app, so on
+   an iPhone the Google button is often a dead end. Email and password work
+   everywhere, and the note points at them. */
+(function(){
+  var ua = navigator.userAgent || '';
+  var inApp = /FBAN|FBAV|Instagram|WhatsApp|Line\/|MicroMessenger|Twitter/i.test(ua);
+  var iOS = /iPad|iPhone|iPod/.test(ua);
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+  function newPasswordScreen(){
+    if (document.getElementById('pwReset')) return;
+    var w = document.createElement('div');
+    w.id = 'pwReset'; w.className = 'pwreset-wrap';
+    w.innerHTML =
+      '<div class="pwreset-card">' +
+        '<h2>Choose a new password</h2>' +
+        '<p>Type it twice. You will be signed in afterwards.</p>' +
+        '<input id="pwNew1" type="password" autocomplete="new-password" placeholder="New password">' +
+        '<input id="pwNew2" type="password" autocomplete="new-password" placeholder="Again">' +
+        '<div id="pwResetErr" class="pwreset-err"></div>' +
+        '<button id="pwSave">Save it</button>' +
+      '</div>';
+    document.body.appendChild(w);
+    document.getElementById('pwSave').onclick = async function(){
+      var a = document.getElementById('pwNew1').value;
+      var b = document.getElementById('pwNew2').value;
+      var e = document.getElementById('pwResetErr');
+      if (a.length < 6) { e.textContent = 'At least six characters.'; return; }
+      if (a !== b) { e.textContent = 'Those two do not match.'; return; }
+      this.disabled = true; this.textContent = 'Saving\u2026';
+      try {
+        var r = await sb.auth.updateUser({ password: a });
+        if (r && r.error) throw r.error;
+        history.replaceState({}, document.title, location.pathname);
+        w.remove();
+      } catch (err) {
+        e.textContent = (err && err.message) || 'Could not save that.';
+        this.disabled = false; this.textContent = 'Save it';
+      }
+    };
+  }
+
+  function note(){
+    var sheet = document.getElementById('auth');
+    if (!sheet || document.getElementById('authNote')) return;
+    if (!inApp && !(iOS && standalone)) return;
+    var d = document.createElement('div');
+    d.id = 'authNote'; d.className = 'auth-note-warn';
+    d.innerHTML = inApp
+      ? '<strong>Google will not work here</strong><span>You opened this inside another app\u2019s browser. ' +
+        'Use your email and password below, or open the site in Safari first.</span>'
+      : '<strong>Use your email here</strong><span>Google sign-in does not work in an app added to the Home Screen. ' +
+        'Your email and password work normally.</span>';
+    var first = sheet.querySelector('input') || sheet.firstChild;
+    if (first && first.parentNode) first.parentNode.insertBefore(d, first);
+    else sheet.insertBefore(d, sheet.firstChild);
+  }
+
+  function hashError(){
+    if (!location.hash || location.hash.indexOf('error') === -1) return;
+    var p = new URLSearchParams(location.hash.slice(1));
+    var m = p.get('error_description') || p.get('error');
+    if (m) { try { toast(decodeURIComponent(m).replace(/\+/g,' ')); } catch(e){} }
+    history.replaceState({}, document.title, location.pathname);
+  }
+
+  try {
+    sb.auth.onAuthStateChange(function(ev){ if (ev === 'PASSWORD_RECOVERY') newPasswordScreen(); });
+  } catch(e){}
+
+  function run(){
+    if (location.hash && location.hash.indexOf('type=recovery') !== -1) newPasswordScreen();
+    hashError();
+    note();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  setTimeout(run, 1000);
+  var ob = document.getElementById('auGoogle');
+  if (ob) ob.addEventListener('click', function(){ setTimeout(note, 50); });
+  document.addEventListener('click', function(){ setTimeout(note, 150); }, true);
+})();
+</script>
+<style>
+.pwreset-wrap{position:fixed;inset:0;z-index:9999;background:#1F1B56;display:flex;align-items:center;justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) 20px calc(env(safe-area-inset-bottom,0px) + 24px);overflow-y:auto}
+.pwreset-card{background:#fff;border-radius:20px;padding:26px 22px;max-width:380px;width:100%}
+.pwreset-card h2{color:#1F1B56;font-size:22px;margin:0 0 6px}
+.pwreset-card p{color:#6F6A94;font-size:14px;margin:0 0 18px;line-height:1.5}
+.pwreset-card input{width:100%;padding:13px 14px;margin-bottom:9px;border-radius:11px;border:1.5px solid #E4E1EF;
+  background:#FAF9FD;color:#1F1B56;font:inherit;font-size:15px;min-height:46px;box-sizing:border-box}
+.pwreset-card button{width:100%;padding:13px;border:0;border-radius:11px;background:#EB4137;color:#fff;
+  font:inherit;font-size:15px;font-weight:700;min-height:48px;cursor:pointer}
+.pwreset-err{color:#C62828;font-size:13px;min-height:18px;margin:2px 0 6px}
+.auth-note-warn{background:#FFF4E5;border:1px solid #F0C98A;border-radius:12px;padding:12px 14px;margin-bottom:14px;text-align:left}
+.auth-note-warn strong{display:block;color:#7A4A00;font-size:14px;margin-bottom:3px}
+.auth-note-warn span{display:block;color:#7A4A00;font-size:13px;line-height:1.5}
+</style>
 </body>
 </html>
