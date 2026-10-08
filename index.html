@@ -1700,5 +1700,41 @@ document.addEventListener('keydown',function(e){
 #appSwitch i:nth-child(3){background:#EB4137}
 #appSwitch:active{background:rgba(31,27,86,.14)}
 </style>
+<script>
+/* Only offer Google where Google can actually finish.
+   iOS gives a home-screen web app its own storage box: tapping Google hands
+   off to Safari, Safari keeps the session, and the app comes back and sees
+   nothing. Same inside WhatsApp's browser. In an ordinary Safari tab it is
+   fine, so hide the button exactly where it cannot work and say why. */
+(function(){
+  var ua = navigator.userAgent || '';
+  var iOS = /iPad|iPhone|iPod/.test(ua);
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var inApp = /FBAN|FBAV|Instagram|WhatsApp|Line\/|MicroMessenger|Twitter/i.test(ua);
+  if (!((iOS && standalone) || inApp)) return;
+
+  function apply(){
+    var btn = document.getElementById('auGoogle');
+    if (!btn || btn.dataset.hiddenHere) return;
+    btn.dataset.hiddenHere = '1';
+    btn.style.display = 'none';
+    if (document.getElementById('whyNoGoogle')) return;
+    var p = document.createElement('p');
+    p.id = 'whyNoGoogle';
+    p.className = 'why-no-google';
+    p.textContent = inApp
+      ? 'Use your email below. Google cannot finish inside another app\u2019s browser.'
+      : 'Use your email below. Google cannot finish in an app added to the Home Screen.';
+    btn.parentNode.insertBefore(p, btn);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+  setTimeout(apply, 800);
+  document.addEventListener('click', function(){ setTimeout(apply, 150); }, true);
+})();
+</script>
+<style>
+.why-no-google{color:#6F6A94;font-size:13.5px;line-height:1.55;margin:0 0 12px;text-align:center}
+</style>
 </body>
 </html>
