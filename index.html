@@ -1476,5 +1476,91 @@ document.addEventListener('keydown',function(e){
   border-top:1px solid rgba(0,0,0,.08);min-height:44px}
 .back-apps:active{color:#EB4137}
 </style>
+<script>
+/* Keeping her app on more than one device
+   --------------------------------------
+   Everything lived in one browser: a new phone or a cleared cache lost the
+   lot, with nothing anywhere saying so. Signing in is still optional — the
+   app works exactly as before if she never does — but once she is signed in
+   her state is mirrored to her own row and comes back on any device.
+
+   Two things learned the hard way on the other app are built in here:
+   nothing is written until the first read has finished, so a blank state
+   cannot overwrite real data; and on a first sign-in whatever is already on
+   the device wins over an empty row, so signing in never costs her anything. */
+(function(){
+  var loaded = false;      // has the first read finished?
+  var timer  = null;
+
+  function me(){ try { return (typeof user !== 'undefined' && user) ? user : null; } catch(e){ return null; } }
+  function db(){ try { return (typeof sb !== 'undefined') ? sb : null; } catch(e){ return null; } }
+
+  async function pull(){
+    var c = db(), u = me();
+    if (!c || !u) { loaded = false; return; }
+    try {
+      var r = await c.from('husband_data').select('data').eq('user_id', u.id).maybeSingle();
+      var cloud = r && r.data && r.data.data;
+      var hasCloud = cloud && Object.keys(cloud).length > 0;
+      var hasLocal = false;
+      try { hasLocal = !!localStorage.getItem('happyMarriage.v1'); } catch(e){}
+
+      if (hasCloud) {
+        // the cloud is the record: adopt it, then redraw
+        try {
+          localStorage.setItem('happyMarriage.v1', JSON.stringify(cloud));
+          if (typeof load === 'function') load();
+          if (typeof renderAll === 'function') renderAll();
+        } catch(e){}
+      }
+      loaded = true;
+      // an empty row with work already on the device: push the device up
+      if (!hasCloud && hasLocal) push();
+    } catch (e) {
+      // a failed read must not leave her unable to save
+      loaded = true;
+    }
+  }
+
+  async function push(){
+    if (!loaded) return;                 // never write before reading
+    var c = db(), u = me();
+    if (!c || !u) return;
+    var raw;
+    try { raw = localStorage.getItem('happyMarriage.v1'); } catch(e){ return; }
+    if (!raw) return;
+    var obj; try { obj = JSON.parse(raw); } catch(e){ return; }
+    try {
+      await c.from('husband_data').upsert(
+        { user_id: u.id, data: obj, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id' });
+    } catch (e) {}
+  }
+
+  function pushSoon(){ clearTimeout(timer); timer = setTimeout(push, 1200); }
+
+  /* save() is the one place this app writes to the device, so wrapping it
+     catches every change without touching any of the screens. */
+  function wrapSave(){
+    if (typeof save !== 'function' || save.__synced) return;
+    var original = save;
+    window.save = function(){ var r = original.apply(this, arguments); pushSoon(); return r; };
+    window.save.__synced = true;
+  }
+
+  try {
+    if (db() && db().auth) {
+      db().auth.onAuthStateChange(function(event, session){
+        if (session && session.user) { pull(); } else { loaded = false; }
+      });
+    }
+  } catch(e){}
+
+  function boot(){ wrapSave(); if (me()) pull(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  setTimeout(boot, 1500);
+})();
+</script>
 </body>
 </html>
