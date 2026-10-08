@@ -1750,5 +1750,47 @@ document.addEventListener('keydown',function(e){
   setTimeout(hide, 500); setTimeout(hide, 1500);
 })();
 </script>
+<script>
+/* One repair line, on a calm day.
+   Rehearsal raised the effect size in the 2024 meta-analysis of if-then
+   plans, and a line read for the first time mid-argument is the hardest one
+   to use. So a single line from the repair list appears on Today, roughly
+   twice a week. Not a task: nothing to tick, nothing recorded. It is there
+   to have been read before, which is the entire point. */
+(function(){
+  var KEY = 'hm-calm-line';
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function pick(){
+    var st = {};
+    try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){}
+    if (st.on === today()) return st.i;
+    var i = (Math.random() < 0.3 && typeof REPAIR !== 'undefined' && REPAIR.length)
+      ? Math.floor(Math.random() * REPAIR.length) : -1;
+    try { localStorage.setItem(KEY, JSON.stringify({ on: today(), i: i })); } catch(e){}
+    return i;
+  }
+  function draw(){
+    if (typeof REPAIR === 'undefined' || !REPAIR.length) return;
+    var host = document.getElementById('v-today');
+    if (!host || document.getElementById('calmLine')) return;
+    var i = pick();
+    if (i < 0 || i >= REPAIR.length) return;
+    var d = document.createElement('div');
+    d.id = 'calmLine'; d.className = 'calm-line';
+    d.innerHTML = '<span class="calm-label">One line, for a day that is not today</span>' +
+                  '<span class="calm-text"></span>';
+    d.querySelector('.calm-text').textContent = REPAIR[i];
+    host.appendChild(d);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(draw, 600); });
+  else setTimeout(draw, 600);
+})();
+</script>
+<style>
+.calm-line{display:block;margin:22px 0 6px;padding:15px 17px;border-radius:14px;
+  background:rgba(31,27,86,.05);border-left:3px solid #EE6E64}
+.calm-label{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#8A85AD;margin-bottom:6px}
+.calm-text{display:block;font-size:16px;line-height:1.5;color:#1F1B56}
+</style>
 </body>
 </html>
