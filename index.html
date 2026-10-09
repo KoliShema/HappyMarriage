@@ -1988,5 +1988,46 @@ document.addEventListener('keydown',function(e){
 #quiz .q-opt, #quiz .opt{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.22); color:#fff; }
 #quiz .q-opt.on, #quiz .opt.on{ background:#EB4137; border-color:#EB4137; }
 </style>
+<script>
+/* The sign-in sheet never blocked anybody — it opens on a tap and the app
+   works fully without it. But its subtitle was empty, so it asked for an
+   account without saying why anyone would want one. Two people who looked
+   at these apps were put off by sign-in before reaching the content; the
+   least this can do is be honest about what it is for.
+
+   Also makes the way out obvious. A sheet with a stray X is not the same as
+   a button that says you do not have to. */
+(function(){
+  function fill(){
+    var sub = document.getElementById('auSub');
+    if (sub && !sub.textContent.trim()) {
+      sub.textContent = 'Only needed to keep your habits if you change phone, '
+        + 'or to connect with your husband. Everything works without it.';
+    }
+    var sheet = document.getElementById('auth');
+    if (!sheet || document.getElementById('auSkip')) return;
+    var card = sheet.querySelector('.sheetCard');
+    if (!card) return;
+    var b = document.createElement('button');
+    b.id = 'auSkip';
+    b.className = 'au-skip';
+    b.textContent = 'Carry on without an account';
+    b.onclick = function(){
+      try { if (typeof closeAuth === 'function') return closeAuth(); } catch(e){}
+      sheet.hidden = true;
+    };
+    card.appendChild(b);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(fill, 700); });
+  else setTimeout(fill, 700);
+  document.addEventListener('click', function(){ setTimeout(fill, 120); }, true);
+})();
+</script>
+<style>
+.au-skip{display:block;width:100%;margin-top:14px;padding:13px;border:0;border-radius:11px;background:transparent;
+  color:#6F6A94;font:inherit;font-size:14px;cursor:pointer;min-height:44px;text-decoration:underline}
+.au-skip:active{color:#EB4137}
+#auSub{line-height:1.55}
+</style>
 </body>
 </html>
