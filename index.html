@@ -2025,5 +2025,26 @@ document.addEventListener('keydown',function(e){
 .au-skip:active{color:#EB4137}
 #auSub{line-height:1.55}
 </style>
+<style>
+/* Anything dark with white text on it must not depend on --navy.
+
+   --navy is the text colour, so dark mode flips it to #F4F3FA, nearly white.
+   Four rules used it as a BACKGROUND with color:#fff — the welcome screen,
+   the PIN screen, the toast and every primary button. In dark mode all four
+   became white on white. The welcome and lock screens are full-screen
+   overlays at z-index 1000, so a phone in dark mode showed a blank page.
+
+   I fixed #quiz for this earlier and did not check what else shared the
+   pattern. These are pinned to the real colour in both schemes. */
+#welcome, #lock, #quiz { background:#1F1B56 !important; color:#fff !important; }
+#welcome h1, #welcome h2, #welcome p, #lock h1, #lock h2, #lock p { color:#fff; }
+#welcome .muted, #lock .muted { color:rgba(255,255,255,.66); }
+
+#toast { background:#1F1B56 !important; color:#fff !important; }
+
+.btn { background:#EB4137 !important; color:#fff !important; }
+.btn.quiet { background:transparent !important; color:inherit !important; }
+.btn:disabled { opacity:.55; }
+</style>
 </body>
 </html>
