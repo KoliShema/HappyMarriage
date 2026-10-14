@@ -2046,5 +2046,40 @@ document.addEventListener('keydown',function(e){
 .btn.quiet { background:transparent !important; color:inherit !important; }
 .btn:disabled { opacity:.55; }
 </style>
+<script>
+/* The welcome screen and the quiz are both full-screen overlays, and one of
+   them is covering the app on at least one phone. Rather than keep guessing
+   at the cause, both are held shut: nothing that covers the whole screen on
+   first open can open by itself.
+
+   quizFilter still works for anyone who answered already, so a person's
+   existing answers keep narrowing their suggestions. Nothing is deleted.
+   Flip SHOW_OVERLAYS to true to put them back. */
+(function(){
+  var SHOW_OVERLAYS = false;
+  if (SHOW_OVERLAYS) return;
+
+  function shut(){
+    ['welcome','quiz','lock'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.hidden = true;
+      el.style.display = 'none';
+    });
+  }
+  ['startQuiz','showWelcome','openWelcome'].forEach(function(fn){
+    try {
+      if (typeof window[fn] === 'function' && !window[fn].__shut) {
+        window[fn] = function(){ shut(); };
+        window[fn].__shut = true;
+      }
+    } catch(e){}
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ shut(); setTimeout(shut, 300); });
+  else { shut(); setTimeout(shut, 300); }
+  setTimeout(shut, 900);
+  setTimeout(shut, 2000);
+})();
+</script>
 </body>
 </html>
